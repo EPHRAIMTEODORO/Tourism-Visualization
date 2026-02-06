@@ -4,8 +4,139 @@ const formatNumber = d3.format(",");
 const formatMillions = (value) => `${d3.format(".2f")(value / 1e6)}M`;
 const formatBillions = (value) => `$${d3.format(".2f")(value / 1e9)}B`;
 
+// Application state
+const appState = {
+  activeTab: 'standard',
+  searchFilters: {
+    standard: '',
+    bubble: ''
+  },
+  dataset: null
+};
+
+/**
+ * Initialize tab navigation
+ */
+function initTabs() {
+  const tabButtons = document.querySelectorAll('.tab-nav__button');
+
+  tabButtons.forEach(button => {
+    button.addEventListener('click', (e) => {
+      const chartType = e.currentTarget.dataset.chart;
+      switchTab(chartType);
+    });
+  });
+}
+
+/**
+ * Switch between tabs
+ */
+function switchTab(chartType) {
+  if (appState.activeTab === chartType) return;
+
+  appState.activeTab = chartType;
+
+  // Update tab buttons
+  document.querySelectorAll('.tab-nav__button').forEach(btn => {
+    const isActive = btn.dataset.chart === chartType;
+    btn.classList.toggle('tab-nav__button--active', isActive);
+    btn.setAttribute('aria-selected', isActive);
+  });
+
+  // Update tab panels
+  document.querySelectorAll('.tab-panel').forEach(panel => {
+    const isActive = panel.id === `${chartType}-scatter-panel`;
+    panel.classList.toggle('tab-panel--active', isActive);
+  });
+
+  // Re-render the active chart (for proper sizing)
+  setTimeout(() => {
+    renderCharts(appState.dataset);
+  }, 50);
+}
+
+/**
+ * Initialize search inputs
+ */
+function initSearch() {
+  const searchStandard = document.getElementById('search-standard');
+  const searchBubble = document.getElementById('search-bubble');
+
+  searchStandard.addEventListener('input', (e) => {
+    appState.searchFilters.standard = e.target.value.toLowerCase();
+    filterLegendAndChart('standard');
+  });
+
+  searchBubble.addEventListener('input', (e) => {
+    appState.searchFilters.bubble = e.target.value.toLowerCase();
+    filterLegendAndChart('bubble');
+  });
+}
+
+/**
+ * Filter legend items and chart dots based on search
+ */
+function filterLegendAndChart(chartType) {
+  const searchTerm = appState.searchFilters[chartType];
+  const legendContainer = document.getElementById(`legend-${chartType}`);
+  const chartElement = document.getElementById(`${chartType}-scatter`);
+
+  // Filter legend items
+  const legendItems = legendContainer.querySelectorAll('.legend-item');
+  legendItems.forEach(item => {
+    const countryName = item.textContent.toLowerCase();
+    const matches = countryName.includes(searchTerm);
+    item.classList.toggle('legend-item--hidden', !matches && searchTerm !== '');
+  });
+
+  // Filter chart dots
+  if (searchTerm === '') {
+    // Show all dots
+    chartElement.querySelectorAll('.dot').forEach(dot => {
+      dot.classList.remove('dot--dimmed', 'dot--highlighted');
+    });
+  } else {
+    // Dim non-matching, highlight matching
+    chartElement.querySelectorAll('.dot').forEach(dot => {
+      const countryData = d3.select(dot).datum();
+      const matches = countryData.country.toLowerCase().includes(searchTerm);
+      dot.classList.toggle('dot--dimmed', !matches);
+      dot.classList.toggle('dot--highlighted', matches);
+    });
+  }
+}
+
+/**
+ * Add legend item interactivity
+ */
+function addLegendInteractivity(chartType) {
+  const legendContainer = document.getElementById(`legend-${chartType}`);
+  const chartElement = document.getElementById(`${chartType}-scatter`);
+
+  legendContainer.querySelectorAll('.legend-item').forEach(item => {
+    const countryName = item.querySelector('span:last-child').textContent;
+
+    item.addEventListener('mouseenter', () => {
+      // Highlight corresponding dot
+      chartElement.querySelectorAll('.dot').forEach(dot => {
+        const dotData = d3.select(dot).datum();
+        if (dotData.country === countryName) {
+          dot.classList.add('dot--highlight');
+        }
+      });
+    });
+
+    item.addEventListener('mouseleave', () => {
+      // Remove highlight
+      chartElement.querySelectorAll('.dot').forEach(dot => {
+        dot.classList.remove('dot--highlight');
+      });
+    });
+  });
+}
+
 const chartConfig = {
-  height: 440,
+  height: 600,
   margin: { top: 20, right: 24, bottom: 60, left: 68 }
 };
 
@@ -93,10 +224,17 @@ function createScatterPlot({
   yScale,
   radiusAccessor,
   chartTitle,
-  colorScale
+  colorScale,
+  legendContainerId
 }) {
   const container = d3.select(elementId);
   container.selectAll("*").remove();
+
+  // Only render if the parent tab panel is active
+  const parentPanel = container.node().closest('.tab-panel');
+  if (!parentPanel || !parentPanel.classList.contains('tab-panel--active')) {
+    return;
+  }
 
   const width = container.node().getBoundingClientRect().width || 400;
   const { height, margin } = chartConfig;
@@ -196,11 +334,17 @@ function createScatterPlot({
       tooltip.classed("is-visible", false).attr("aria-hidden", "true");
     });
 
-  const legendList = container.append("div").attr("class", "legend-list");
+  // CREATE LEGEND IN SIDEBAR
+  const legendContainer = d3.select(legendContainerId);
+  legendContainer.selectAll("*").remove();
+
+  const legendList = legendContainer
+    .append("div")
+    .attr("class", "legend-list");
 
   const legendItems = legendList
     .selectAll("div")
-    .data(data, (d) => d.country)
+    .data(data.sort((a, b) => a.country.localeCompare(b.country)), (d) => d.country)
     .enter()
     .append("div")
     .attr("class", "legend-item");
@@ -210,20 +354,28 @@ function createScatterPlot({
     .attr("class", "legend-swatch")
     .style("background-color", (d) => colorScale(d.country));
 
-  legendItems.append("span").text((d) => d.country);
+  legendItems
+    .append("span")
+    .text((d) => d.country);
+
+  // Add legend interactivity
+  const chartType = elementId.includes('standard') ? 'standard' : 'bubble';
+  addLegendInteractivity(chartType);
 }
 
 function renderCharts(data) {
+  appState.dataset = data;
+
   const { xDomain, yDomain } = buildScales(data);
   const colorScale = d3
     .scaleOrdinal()
     .domain(data.map((d) => d.country))
     .range(d3.schemeTableau10);
 
-  const sharedWidth = Math.max(
-    320,
-    document.querySelector(".chart")?.getBoundingClientRect().width || 420
-  );
+  // Calculate width based on active chart container
+  const activePanel = document.querySelector('.tab-panel--active');
+  const chartContainer = activePanel?.querySelector('.chart-main');
+  const sharedWidth = chartContainer?.getBoundingClientRect().width || 600;
 
   const xScale = d3
     .scaleLinear()
@@ -247,7 +399,8 @@ function renderCharts(data) {
     yScale,
     radiusAccessor: () => 6,
     chartTitle: "Standard Scatter Plot",
-    colorScale
+    colorScale,
+    legendContainerId: "#legend-standard"
   });
 
   const maxExpenditure = d3.max(data, (d) => d.tourism_expenditure);
@@ -263,8 +416,17 @@ function renderCharts(data) {
     yScale,
     radiusAccessor: (d) => bubbleScale(d.tourism_expenditure),
     chartTitle: "Bubble Scatter Plot",
-    colorScale
+    colorScale,
+    legendContainerId: "#legend-bubble"
   });
+
+  // Reapply any active search filters
+  if (appState.searchFilters.standard) {
+    filterLegendAndChart('standard');
+  }
+  if (appState.searchFilters.bubble) {
+    filterLegendAndChart('bubble');
+  }
 }
 
 function parseCsvWithMetadata(text) {
@@ -285,7 +447,16 @@ d3.text(CSV_PATH)
       throw new Error("No valid records found in the CSV file.");
     }
 
+    appState.dataset = dataset;
+
+    // Initialize tabs and search
+    initTabs();
+    initSearch();
+
+    // Render charts
     renderCharts(dataset);
+
+    // Handle window resize
     window.addEventListener("resize", () => {
       renderCharts(dataset);
     });

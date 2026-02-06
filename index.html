@@ -18,16 +18,80 @@
         </p>
       </header>
 
-      <section class="charts">
-        <article class="chart-card">
-          <h2>Standard Scatter Plot</h2>
-          <div id="standard-scatter" class="chart"></div>
-        </article>
-        <article class="chart-card">
-          <h2>Bubble Scatter Plot</h2>
-          <div id="bubble-scatter" class="chart"></div>
-        </article>
-      </section>
+      <!-- Tab Navigation -->
+      <nav class="tab-nav" role="tablist">
+        <button
+          class="tab-nav__button tab-nav__button--active"
+          role="tab"
+          aria-selected="true"
+          aria-controls="standard-scatter-panel"
+          id="tab-standard"
+          data-chart="standard">
+          Standard Scatter Plot
+        </button>
+        <button
+          class="tab-nav__button"
+          role="tab"
+          aria-selected="false"
+          aria-controls="bubble-scatter-panel"
+          id="tab-bubble"
+          data-chart="bubble">
+          Bubble Scatter Plot
+        </button>
+      </nav>
+
+      <!-- Tab Panels -->
+      <div class="tab-panels">
+        <!-- Standard Scatter Panel -->
+        <section
+          class="tab-panel tab-panel--active"
+          id="standard-scatter-panel"
+          role="tabpanel"
+          aria-labelledby="tab-standard">
+          <div class="chart-layout">
+            <div class="chart-main">
+              <div id="standard-scatter" class="chart"></div>
+            </div>
+            <aside class="chart-sidebar">
+              <div class="sidebar-header">
+                <h3>Country Legend</h3>
+                <input
+                  type="search"
+                  class="search-input"
+                  placeholder="Search countries..."
+                  aria-label="Search countries"
+                  id="search-standard">
+              </div>
+              <div class="legend-container" id="legend-standard"></div>
+            </aside>
+          </div>
+        </section>
+
+        <!-- Bubble Scatter Panel -->
+        <section
+          class="tab-panel"
+          id="bubble-scatter-panel"
+          role="tabpanel"
+          aria-labelledby="tab-bubble">
+          <div class="chart-layout">
+            <div class="chart-main">
+              <div id="bubble-scatter" class="chart"></div>
+            </div>
+            <aside class="chart-sidebar">
+              <div class="sidebar-header">
+                <h3>Country Legend</h3>
+                <input
+                  type="search"
+                  class="search-input"
+                  placeholder="Search countries..."
+                  aria-label="Search countries"
+                  id="search-bubble">
+              </div>
+              <div class="legend-container" id="legend-bubble"></div>
+            </aside>
+          </div>
+        </section>
+      </div>
     </main>
 
     <div id="tooltip" class="tooltip" aria-hidden="true"></div>

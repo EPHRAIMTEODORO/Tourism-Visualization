@@ -48,7 +48,8 @@ footer {
   max-width: 680px;
 }
 
-.charts {
+/* Old styles - replaced by tab layout */
+/* .charts {
   display: flex;
   gap: 24px;
   flex-wrap: wrap;
@@ -66,17 +67,189 @@ footer {
 .chart-card h2 {
   margin: 0 0 12px;
   font-size: 1.2rem;
+} */
+
+/* ========================================
+   TAB NAVIGATION
+   ======================================== */
+.tab-nav {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  border-bottom: 2px solid var(--grid);
+}
+
+.tab-nav__button {
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  padding: 12px 24px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  bottom: -2px;
+}
+
+.tab-nav__button:hover {
+  color: var(--text);
+  background: rgba(47, 111, 237, 0.05);
+}
+
+.tab-nav__button--active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+  font-weight: 600;
+}
+
+.tab-nav__button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ========================================
+   TAB PANELS
+   ======================================== */
+.tab-panels {
+  position: relative;
+}
+
+.tab-panel {
+  display: none;
+  opacity: 0;
+  animation: fadeOut 0.2s ease;
+}
+
+.tab-panel--active {
+  display: block;
+  opacity: 1;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* ========================================
+   CHART LAYOUT (Main + Sidebar)
+   ======================================== */
+.chart-layout {
+  display: flex;
+  gap: 24px;
+  background: var(--card);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+  min-height: 700px;
+}
+
+.chart-main {
+  flex: 1;
+  min-width: 0;
 }
 
 .chart {
   width: 100%;
-  min-height: 440px;
+  min-height: 650px;
 }
 
 svg {
   width: 100%;
   height: auto;
   display: block;
+}
+
+/* ========================================
+   SIDEBAR
+   ======================================== */
+.chart-sidebar {
+  width: 280px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid var(--grid);
+  padding-left: 24px;
+}
+
+.sidebar-header {
+  margin-bottom: 16px;
+}
+
+.sidebar-header h3 {
+  margin: 0 0 12px;
+  font-size: 1rem;
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* ========================================
+   SEARCH INPUT
+   ======================================== */
+.search-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1.5px solid var(--grid);
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-family: inherit;
+  color: var(--text);
+  background: var(--bg);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(47, 111, 237, 0.1);
+}
+
+.search-input::placeholder {
+  color: var(--muted);
+}
+
+/* ========================================
+   LEGEND CONTAINER
+   ======================================== */
+.legend-container {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 8px;
+  max-height: 500px;
+}
+
+.legend-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.legend-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.legend-container::-webkit-scrollbar-thumb {
+  background: var(--grid);
+  border-radius: 3px;
+}
+
+.legend-container::-webkit-scrollbar-thumb:hover {
+  background: var(--muted);
 }
 
 .axis path,
@@ -138,30 +311,103 @@ svg {
   ry: 4px;
 }
 
+/* ========================================
+   LEGEND ITEMS (Vertical List)
+   ======================================== */
 .legend-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 8px 12px;
-  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
 }
 
 .legend-item {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 0.78rem;
-  color: var(--muted);
+  gap: 10px;
+  font-size: 0.8rem;
+  color: var(--text);
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.legend-item:hover {
+  background: rgba(47, 111, 237, 0.08);
+}
+
+.legend-item--hidden {
+  display: none;
+}
+
+.legend-item--dimmed {
+  opacity: 0.3;
 }
 
 .legend-swatch {
-  width: 10px;
-  height: 10px;
+  width: 12px;
+  height: 12px;
   border-radius: 3px;
   flex-shrink: 0;
 }
 
-@media (max-width: 900px) {
-  .charts {
+/* ========================================
+   DOT FILTERING STATES
+   ======================================== */
+.dot--dimmed {
+  opacity: 0.15;
+  pointer-events: none;
+}
+
+.dot--highlighted {
+  opacity: 1 !important;
+  stroke: #0f1f3d;
+  stroke-width: 2px;
+}
+
+/* ========================================
+   RESPONSIVE ADJUSTMENTS
+   ======================================== */
+@media (max-width: 1024px) {
+  .chart-layout {
     flex-direction: column;
+  }
+
+  .chart-sidebar {
+    width: 100%;
+    border-left: none;
+    border-top: 1px solid var(--grid);
+    padding-left: 0;
+    padding-top: 24px;
+    max-height: 400px;
+  }
+
+  .legend-container {
+    max-height: 300px;
+  }
+
+  .chart {
+    min-height: 500px;
+  }
+}
+
+@media (max-width: 640px) {
+  .tab-nav__button {
+    padding: 10px 16px;
+    font-size: 0.85rem;
+  }
+
+  .chart-layout {
+    padding: 16px;
+  }
+
+  .chart {
+    min-height: 400px;
+  }
+
+  .legend-container {
+    max-height: 250px;
   }
 }
