@@ -11,6 +11,10 @@ const appState = {
     standard: '',
     bubble: ''
   },
+  selectedCountries: {
+    standard: null,
+    bubble: null
+  },
   dataset: null
 };
 
@@ -78,6 +82,7 @@ function initSearch() {
  */
 function filterLegendAndChart(chartType) {
   const searchTerm = appState.searchFilters[chartType];
+  const selectedCountry = appState.selectedCountries[chartType];
   const legendContainer = document.getElementById(`legend-${chartType}`);
   const chartElement = document.getElementById(`${chartType}-scatter`);
 
@@ -89,20 +94,23 @@ function filterLegendAndChart(chartType) {
     item.classList.toggle('legend-item--hidden', !matches && searchTerm !== '');
   });
 
-  // Filter chart dots
-  if (searchTerm === '') {
-    // Show all dots
+  // Filter chart dots - consider both search and selection
+  if (searchTerm === '' && !selectedCountry) {
+    // Show all dots normally
     chartElement.querySelectorAll('.dot').forEach(dot => {
       dot.classList.remove('dot--dimmed', 'dot--highlighted');
     });
-  } else {
-    // Dim non-matching, highlight matching
+  } else if (searchTerm !== '') {
+    // Search is active - dim non-matching, highlight matching
     chartElement.querySelectorAll('.dot').forEach(dot => {
       const countryData = d3.select(dot).datum();
       const matches = countryData.country.toLowerCase().includes(searchTerm);
       dot.classList.toggle('dot--dimmed', !matches);
       dot.classList.toggle('dot--highlighted', matches);
     });
+  } else if (selectedCountry) {
+    // Only selection is active - handled by updateCountrySelection
+    updateCountrySelection(chartType);
   }
 }
 
@@ -116,23 +124,83 @@ function addLegendInteractivity(chartType) {
   legendContainer.querySelectorAll('.legend-item').forEach(item => {
     const countryName = item.querySelector('span:last-child').textContent;
 
+    // Click to select/deselect country
+    item.addEventListener('click', () => {
+      const currentlySelected = appState.selectedCountries[chartType];
+
+      if (currentlySelected === countryName) {
+        // Deselect if clicking the same country
+        appState.selectedCountries[chartType] = null;
+      } else {
+        // Select new country
+        appState.selectedCountries[chartType] = countryName;
+      }
+
+      updateCountrySelection(chartType);
+    });
+
+    // Hover to highlight
     item.addEventListener('mouseenter', () => {
-      // Highlight corresponding dot
-      chartElement.querySelectorAll('.dot').forEach(dot => {
-        const dotData = d3.select(dot).datum();
-        if (dotData.country === countryName) {
-          dot.classList.add('dot--highlight');
-        }
-      });
+      // Only highlight if no country is selected
+      if (!appState.selectedCountries[chartType]) {
+        chartElement.querySelectorAll('.dot').forEach(dot => {
+          const dotData = d3.select(dot).datum();
+          if (dotData.country === countryName) {
+            dot.classList.add('dot--highlight');
+          }
+        });
+      }
     });
 
     item.addEventListener('mouseleave', () => {
-      // Remove highlight
-      chartElement.querySelectorAll('.dot').forEach(dot => {
-        dot.classList.remove('dot--highlight');
-      });
+      // Remove highlight only if no country is selected
+      if (!appState.selectedCountries[chartType]) {
+        chartElement.querySelectorAll('.dot').forEach(dot => {
+          dot.classList.remove('dot--highlight');
+        });
+      }
     });
   });
+}
+
+/**
+ * Update chart and legend based on selected country
+ */
+function updateCountrySelection(chartType) {
+  const selectedCountry = appState.selectedCountries[chartType];
+  const legendContainer = document.getElementById(`legend-${chartType}`);
+  const chartElement = document.getElementById(`${chartType}-scatter`);
+
+  // Update legend items
+  legendContainer.querySelectorAll('.legend-item').forEach(item => {
+    const countryName = item.querySelector('span:last-child').textContent;
+    if (selectedCountry === countryName) {
+      item.classList.add('legend-item--selected');
+    } else {
+      item.classList.remove('legend-item--selected');
+    }
+  });
+
+  // Update chart dots
+  if (selectedCountry) {
+    chartElement.querySelectorAll('.dot').forEach(dot => {
+      const dotData = d3.select(dot).datum();
+      if (dotData.country === selectedCountry) {
+        dot.classList.remove('dot--dimmed');
+        dot.classList.add('dot--highlighted');
+        // Bring selected dot to front (render on top)
+        d3.select(dot).raise();
+      } else {
+        dot.classList.add('dot--dimmed');
+        dot.classList.remove('dot--highlighted');
+      }
+    });
+  } else {
+    // Clear selection - restore all dots
+    chartElement.querySelectorAll('.dot').forEach(dot => {
+      dot.classList.remove('dot--dimmed', 'dot--highlighted');
+    });
+  }
 }
 
 const chartConfig = {
@@ -426,6 +494,14 @@ function renderCharts(data) {
   }
   if (appState.searchFilters.bubble) {
     filterLegendAndChart('bubble');
+  }
+
+  // Reapply any active country selections
+  if (appState.selectedCountries.standard) {
+    updateCountrySelection('standard');
+  }
+  if (appState.selectedCountries.bubble) {
+    updateCountrySelection('bubble');
   }
 }
 

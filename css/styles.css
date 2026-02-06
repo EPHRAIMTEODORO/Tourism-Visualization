@@ -338,6 +338,11 @@ svg {
   background: rgba(47, 111, 237, 0.08);
 }
 
+.legend-item--selected {
+  background: rgba(47, 111, 237, 0.15);
+  font-weight: 600;
+}
+
 .legend-item--hidden {
   display: none;
 }
