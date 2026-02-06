@@ -319,29 +319,50 @@ function createScatterPlot({
     .append("g")
     .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
+  // Create a clip path to prevent dots from overflowing
+  svg.append("defs")
+    .append("clipPath")
+    .attr("id", `clip-${elementId.replace('#', '')}`)
+    .append("rect")
+    .attr("width", innerWidth)
+    .attr("height", innerHeight);
+
+  // Create zoom behavior
+  const zoom = d3.zoom()
+    .scaleExtent([0.5, 10])
+    .extent([[0, 0], [innerWidth, innerHeight]])
+    .on("zoom", zoomed);
+
+  // Apply zoom to svg
+  svg.call(zoom);
+
+  // Create scales that will be updated on zoom
+  let currentXScale = xScale.copy();
+  let currentYScale = yScale.copy();
+
   const xAxis = d3
-    .axisBottom(xScale)
+    .axisBottom(currentXScale)
     .ticks(5)
     .tickFormat((d) => `${d / 1e6}M`);
 
   const yAxis = d3
-    .axisLeft(yScale)
+    .axisLeft(currentYScale)
     .ticks(5)
     .tickFormat((d) => `$${d / 1e9}B`);
 
-  chartGroup
-    .append("g")
-    .attr("class", "grid")
-    .call(d3.axisLeft(yScale).ticks(5).tickSize(-innerWidth).tickFormat(""));
+  // Grid
+  const gridGroup = chartGroup.append("g").attr("class", "grid");
 
-  chartGroup
+  // Axes
+  const xAxisGroup = chartGroup
     .append("g")
     .attr("class", "axis")
     .attr("transform", `translate(0, ${innerHeight})`)
     .call(xAxis);
 
-  chartGroup.append("g").attr("class", "axis").call(yAxis);
+  const yAxisGroup = chartGroup.append("g").attr("class", "axis").call(yAxis);
 
+  // Axis labels
   chartGroup
     .append("text")
     .attr("class", "axis-label")
@@ -361,14 +382,19 @@ function createScatterPlot({
     .attr("fill", "#5f6b7a")
     .text("Tourism Expenditure (USD, billions)");
 
-  const dots = chartGroup
+  // Dots group with clip path
+  const dotsGroup = chartGroup
+    .append("g")
+    .attr("clip-path", `url(#clip-${elementId.replace('#', '')})`);
+
+  const dots = dotsGroup
     .selectAll("circle")
     .data(data, (d) => d.country)
     .enter()
     .append("circle")
     .attr("class", "dot")
-    .attr("cx", (d) => xScale(d.tourist_arrivals))
-    .attr("cy", (d) => yScale(d.tourism_expenditure))
+    .attr("cx", (d) => currentXScale(d.tourist_arrivals))
+    .attr("cy", (d) => currentYScale(d.tourism_expenditure))
     .attr("fill", (d) => colorScale(d.country))
     .attr("r", 0);
 
@@ -400,6 +426,57 @@ function createScatterPlot({
     .on("mouseleave", (event) => {
       d3.select(event.currentTarget).classed("dot--highlight", false);
       tooltip.classed("is-visible", false).attr("aria-hidden", "true");
+    });
+
+  // Update grid
+  function updateGrid() {
+    gridGroup.selectAll("*").remove();
+    gridGroup.call(
+      d3.axisLeft(currentYScale)
+        .ticks(5)
+        .tickSize(-innerWidth)
+        .tickFormat("")
+    );
+  }
+
+  updateGrid();
+
+  // Zoom function
+  function zoomed(event) {
+    // Update scales based on zoom transform
+    currentXScale = event.transform.rescaleX(xScale);
+    currentYScale = event.transform.rescaleY(yScale);
+
+    // Update axes
+    xAxisGroup.call(
+      d3.axisBottom(currentXScale)
+        .ticks(5)
+        .tickFormat((d) => `${d / 1e6}M`)
+    );
+    yAxisGroup.call(
+      d3.axisLeft(currentYScale)
+        .ticks(5)
+        .tickFormat((d) => `$${d / 1e9}B`)
+    );
+
+    // Update grid
+    updateGrid();
+
+    // Update dot positions
+    dots
+      .attr("cx", (d) => currentXScale(d.tourist_arrivals))
+      .attr("cy", (d) => currentYScale(d.tourism_expenditure));
+  }
+
+  // Add reset zoom button
+  const resetButton = container
+    .append("button")
+    .attr("class", "reset-zoom-btn")
+    .text("Reset Zoom")
+    .on("click", () => {
+      svg.transition()
+        .duration(750)
+        .call(zoom.transform, d3.zoomIdentity);
     });
 
   // CREATE LEGEND IN SIDEBAR
