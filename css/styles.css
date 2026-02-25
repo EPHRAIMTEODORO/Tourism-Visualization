@@ -20,7 +20,7 @@ body {
 }
 
 .page {
-  max-width: 1200px;
+  max-width: 1600px;
   margin: 0 auto;
   padding: 32px 24px 48px;
 }
@@ -158,7 +158,6 @@ footer {
   border-radius: 16px;
   padding: 24px;
   box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
-  min-height: 700px;
 }
 
 .chart-main {
@@ -168,7 +167,6 @@ footer {
 
 .chart {
   width: 100%;
-  min-height: 650px;
   position: relative;
 }
 
@@ -266,7 +264,7 @@ svg:active {
   flex: 1;
   overflow-y: auto;
   padding-right: 8px;
-  max-height: 500px;
+  /* max-height set dynamically via JS to match chart height */
 }
 
 .legend-container::-webkit-scrollbar {

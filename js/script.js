@@ -203,8 +203,9 @@ function updateCountrySelection(chartType) {
   }
 }
 
+// Chart configuration - height will be calculated dynamically based on container width
 const chartConfig = {
-  height: 600,
+  height: null, // Calculated dynamically
   margin: { top: 20, right: 24, bottom: 60, left: 68 }
 };
 
@@ -305,7 +306,8 @@ function createScatterPlot({
   }
 
   const width = container.node().getBoundingClientRect().width || 400;
-  const { height, margin } = chartConfig;
+  const height = Math.min(width * 0.8, 800); // Responsive height: maintain aspect ratio, max 800px
+  const { margin } = chartConfig;
   const innerWidth = width - margin.left - margin.right;
   const innerHeight = height - margin.top - margin.bottom;
 
@@ -503,6 +505,10 @@ function createScatterPlot({
     .append("span")
     .text((d) => d.country);
 
+  // Sync legend height with chart
+  // Subtract sidebar header height (title + search input + spacing)
+  legendContainer.style("max-height", `${height - 80}px`);
+
   // Add legend interactivity
   const chartType = elementId.includes('standard') ? 'standard' : 'bubble';
   addLegendInteractivity(chartType);
@@ -517,10 +523,11 @@ function renderCharts(data) {
     .domain(data.map((d) => d.country))
     .range(d3.schemeTableau10);
 
-  // Calculate width based on active chart container
+  // Calculate width and height based on active chart container
   const activePanel = document.querySelector('.tab-panel--active');
   const chartContainer = activePanel?.querySelector('.chart-main');
   const sharedWidth = chartContainer?.getBoundingClientRect().width || 600;
+  const sharedHeight = Math.min(sharedWidth * 0.8, 800); // Responsive height
 
   const xScale = d3
     .scaleLinear()
@@ -532,7 +539,7 @@ function renderCharts(data) {
     .scaleLinear()
     .domain(yDomain)
     .range([
-      chartConfig.height - chartConfig.margin.top - chartConfig.margin.bottom,
+      sharedHeight - chartConfig.margin.top - chartConfig.margin.bottom,
       0
     ])
     .nice();
@@ -609,9 +616,13 @@ d3.text(CSV_PATH)
     // Render charts
     renderCharts(dataset);
 
-    // Handle window resize
+    // Handle window resize with debouncing for better performance
+    let resizeTimeout;
     window.addEventListener("resize", () => {
-      renderCharts(dataset);
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => {
+        renderCharts(dataset);
+      }, 250);
     });
   })
   .catch((error) => {
