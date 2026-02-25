@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="css/styles.css" />
     <script src="https://d3js.org/d3.v7.min.js" defer></script>
     <script src="js/script.js" defer></script>
+    <script src="js/questionnaire.js" defer></script>
   </head>
   <body>
     <main class="page">
@@ -37,6 +38,15 @@
           id="tab-bubble"
           data-chart="bubble">
           Bubble Scatter Plot
+        </button>
+        <button
+          class="tab-nav__button"
+          role="tab"
+          aria-selected="false"
+          aria-controls="questionnaire-scatter-panel"
+          id="tab-questionnaire"
+          data-chart="questionnaire">
+          Participant Questionnaire
         </button>
       </nav>
 
@@ -90,6 +100,185 @@
               <div class="legend-container" id="legend-bubble"></div>
             </aside>
           </div>
+        </section>
+
+        <!-- Questionnaire Panel -->
+        <section
+          class="tab-panel"
+          id="questionnaire-scatter-panel"
+          role="tabpanel"
+          aria-labelledby="tab-questionnaire">
+          <form id="participant-form" class="questionnaire" novalidate>
+            <section class="q-section" id="section-2">
+              <h2>Section 2: Demographics</h2>
+
+              <fieldset class="q-block">
+                <legend>Age <span class="required">*</span></legend>
+                <label><input type="radio" name="age" value="18–20" required /> 18–20</label>
+                <label><input type="radio" name="age" value="21–25" /> 21–25</label>
+                <label><input type="radio" name="age" value="26+" /> 26+</label>
+              </fieldset>
+
+              <fieldset class="q-block">
+                <legend>Major <span class="required">*</span></legend>
+                <label><input type="radio" name="major" value="CIS/Computer Science" required /> CIS/Computer Science</label>
+                <label><input type="radio" name="major" value="Other" /> Other</label>
+              </fieldset>
+
+              <fieldset class="q-block">
+                <legend>
+                  Have you taken a data visualization or statistics course?
+                  <span class="required">*</span>
+                </legend>
+                <label><input type="radio" name="course" value="Yes" required /> Yes</label>
+                <label><input type="radio" name="course" value="No" /> No</label>
+              </fieldset>
+            </section>
+
+            <section class="q-section" id="section-3">
+              <h2>Section 3: Practice Trial</h2>
+              <p class="instruction">
+                This is a practice question only and is not recorded.
+              </p>
+
+              <div class="q-block">
+                <label for="practice-response">
+                  Locate a country with tourism expenditure higher than $20 billion.
+                </label>
+                <input
+                  id="practice-response"
+                  type="text"
+                  class="text-input"
+                  placeholder="Type a country name"
+                />
+              </div>
+
+              <div class="actions-row">
+                <button type="button" id="practice-continue" class="btn btn-secondary">Continue</button>
+                <p id="practice-feedback" class="status-message" aria-live="polite"></p>
+              </div>
+            </section>
+
+            <section class="q-section" id="section-4">
+              <h2>Section 4: Visualization Condition A</h2>
+              <p class="instruction">Condition A corresponds to the first visualization (standard scatter plot).</p>
+
+              <div class="q-block">
+                <label for="condition-a-country">
+                  1) Identify a country that has relatively low tourist arrivals but unusually high tourism expenditure.
+                  <span class="required">*</span>
+                </label>
+                <input id="condition-a-country" type="text" class="text-input" required />
+              </div>
+
+              <fieldset class="q-block">
+                <legend>
+                  2) What best describes the relationship between tourist arrivals and tourism expenditure?
+                  <span class="required">*</span>
+                </legend>
+                <label><input type="radio" name="conditionA-relationship" value="Strong positive relationship" required /> Strong positive relationship</label>
+                <label><input type="radio" name="conditionA-relationship" value="Weak relationship" /> Weak relationship</label>
+                <label><input type="radio" name="conditionA-relationship" value="No clear relationship" /> No clear relationship</label>
+              </fieldset>
+
+              <fieldset class="q-block">
+                <legend>
+                  3) How easy was it to identify patterns and outliers using this visualization?
+                  <span class="required">*</span>
+                </legend>
+                <div class="likert-row" role="radiogroup" aria-label="Condition A ease rating">
+                  <label><input type="radio" name="conditionA-ease" value="1" required /> 1</label>
+                  <label><input type="radio" name="conditionA-ease" value="2" /> 2</label>
+                  <label><input type="radio" name="conditionA-ease" value="3" /> 3</label>
+                  <label><input type="radio" name="conditionA-ease" value="4" /> 4</label>
+                  <label><input type="radio" name="conditionA-ease" value="5" /> 5</label>
+                </div>
+                <small>1 = Very Difficult, 5 = Very Easy</small>
+              </fieldset>
+            </section>
+
+            <section class="q-section" id="section-5">
+              <h2>Section 5: Visualization Condition B</h2>
+              <p class="instruction">Condition B corresponds to the second visualization (bubble scatter plot).</p>
+
+              <div class="q-block">
+                <label for="condition-b-country">
+                  1) Identify a country that has relatively low tourist arrivals but unusually high tourism expenditure.
+                  <span class="required">*</span>
+                </label>
+                <input id="condition-b-country" type="text" class="text-input" required />
+              </div>
+
+              <fieldset class="q-block">
+                <legend>
+                  2) What best describes the relationship between tourist arrivals and tourism expenditure?
+                  <span class="required">*</span>
+                </legend>
+                <label><input type="radio" name="conditionB-relationship" value="Strong positive relationship" required /> Strong positive relationship</label>
+                <label><input type="radio" name="conditionB-relationship" value="Weak relationship" /> Weak relationship</label>
+                <label><input type="radio" name="conditionB-relationship" value="No clear relationship" /> No clear relationship</label>
+              </fieldset>
+
+              <fieldset class="q-block">
+                <legend>
+                  3) How easy was it to identify patterns and outliers using this visualization?
+                  <span class="required">*</span>
+                </legend>
+                <div class="likert-row" role="radiogroup" aria-label="Condition B ease rating">
+                  <label><input type="radio" name="conditionB-ease" value="1" required /> 1</label>
+                  <label><input type="radio" name="conditionB-ease" value="2" /> 2</label>
+                  <label><input type="radio" name="conditionB-ease" value="3" /> 3</label>
+                  <label><input type="radio" name="conditionB-ease" value="4" /> 4</label>
+                  <label><input type="radio" name="conditionB-ease" value="5" /> 5</label>
+                </div>
+                <small>1 = Very Difficult, 5 = Very Easy</small>
+              </fieldset>
+            </section>
+
+            <section class="q-section" id="section-6">
+              <h2>Section 6: Comparative Judgment</h2>
+
+              <fieldset class="q-block">
+                <legend>
+                  Which visualization made it easier to identify countries with high economic impact relative to visitor volume?
+                  <span class="required">*</span>
+                </legend>
+                <label><input type="radio" name="comparison-choice" value="Bubble scatter plot" required /> Bubble scatter plot</label>
+                <label><input type="radio" name="comparison-choice" value="Standard scatter plot" /> Standard scatter plot</label>
+              </fieldset>
+
+              <div class="q-block">
+                <label for="comparison-explanation">
+                  Briefly explain your choice (1–2 sentences).
+                  <span class="required">*</span>
+                </label>
+                <textarea id="comparison-explanation" class="text-area" rows="3" required></textarea>
+              </div>
+            </section>
+
+            <section class="q-section" id="section-7">
+              <h2>Section 7: Final Question</h2>
+              <div class="q-block">
+                <label for="final-response">
+                  Did you find either visualization confusing? If yes, explain briefly.
+                  <span class="required">*</span>
+                </label>
+                <textarea id="final-response" class="text-area" rows="3" required></textarea>
+              </div>
+            </section>
+
+            <div class="submit-row">
+              <button type="submit" id="submit-button" class="btn btn-primary" disabled>
+                Submit Responses
+              </button>
+              <p id="validation-message" class="status-message" aria-live="polite"></p>
+            </div>
+          </form>
+
+          <section id="thank-you" class="thank-you" hidden>
+            <h2>Thank you for participating.</h2>
+            <p>Your responses have been recorded.</p>
+          </section>
         </section>
       </div>
     </main>

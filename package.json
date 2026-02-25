@@ -1,0 +1,15 @@
+{
+  "name": "tourism-visualization",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Tourism visualization research demo with Netlify Function + Neon response storage",
+  "scripts": {
+    "start": "netlify dev"
+  },
+  "dependencies": {
+    "pg": "^8.13.1"
+  },
+  "devDependencies": {
+    "netlify-cli": "^22.1.3"
+  }
+}

@@ -405,6 +405,129 @@ svg:active {
 }
 
 /* ========================================
+   QUESTIONNAIRE TAB
+   ======================================== */
+.questionnaire {
+  display: grid;
+  gap: 16px;
+}
+
+.q-section {
+  background: var(--card);
+  border: 1px solid var(--grid);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.q-section h2 {
+  margin: 0 0 10px;
+  font-size: 1.1rem;
+}
+
+.instruction {
+  margin: 0 0 10px;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.q-block {
+  margin: 10px 0;
+  border: 1px solid var(--grid);
+  border-radius: 10px;
+  padding: 12px;
+  background: #fcfdff;
+}
+
+.q-block legend {
+  padding: 0 2px;
+  font-weight: 600;
+}
+
+.q-block label {
+  display: block;
+  margin: 6px 0;
+  line-height: 1.4;
+}
+
+.required {
+  color: #9b1f1f;
+}
+
+.text-input,
+.text-area {
+  width: 100%;
+  margin-top: 6px;
+  border: 1px solid #c9d2e0;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font: inherit;
+  color: var(--text);
+  background: #fff;
+}
+
+.text-input:focus,
+.text-area:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(47, 111, 237, 0.14);
+}
+
+.likert-row {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(52px, 1fr));
+  gap: 8px;
+}
+
+.actions-row,
+.submit-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn {
+  border: none;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+}
+
+.btn-primary:disabled {
+  background: #9db5e9;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background: #e8eefb;
+  color: #1f2a44;
+}
+
+.status-message {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.thank-you {
+  background: var(--card);
+  border: 1px solid var(--grid);
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.thank-you h2 {
+  margin-top: 0;
+}
+
+/* ========================================
    RESPONSIVE ADJUSTMENTS
    ======================================== */
 @media (max-width: 1024px) {
@@ -453,5 +576,14 @@ svg:active {
     font-size: 0.75rem;
     top: 8px;
     right: 8px;
+  }
+
+  .q-section,
+  .q-block {
+    padding: 12px;
+  }
+
+  .likert-row {
+    gap: 4px;
   }
 }
