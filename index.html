@@ -19,39 +19,36 @@
         </p>
       </header>
 
-      <!-- Tab Navigation -->
-      <nav class="tab-nav" role="tablist">
-        <button
-          class="tab-nav__button tab-nav__button--active"
-          role="tab"
-          aria-selected="true"
-          aria-controls="standard-scatter-panel"
-          id="tab-standard"
-          data-chart="standard">
-          Standard Scatter Plot
-        </button>
-        <button
-          class="tab-nav__button"
-          role="tab"
-          aria-selected="false"
-          aria-controls="bubble-scatter-panel"
-          id="tab-bubble"
-          data-chart="bubble">
-          Bubble Scatter Plot
-        </button>
-        <button
-          class="tab-nav__button"
-          role="tab"
-          aria-selected="false"
-          aria-controls="questionnaire-scatter-panel"
-          id="tab-questionnaire"
-          data-chart="questionnaire">
-          Participant Questionnaire
-        </button>
-      </nav>
+      <div class="page-content">
+        <section class="visualization-area">
+          <section class="viz-instructions" aria-label="Plot interaction instructions">
+            <p><strong>Zoom:</strong> Scroll to zoom, drag to pan, and click <strong>Reset Zoom</strong>. <strong>Tooltip:</strong> Hover any dot to see country, arrivals, expenditure, and year.</p>
+          </section>
 
-      <!-- Tab Panels -->
-      <div class="tab-panels">
+          <!-- Tab Navigation -->
+          <nav class="tab-nav" role="tablist">
+            <button
+              class="tab-nav__button tab-nav__button--active"
+              role="tab"
+              aria-selected="true"
+              aria-controls="standard-scatter-panel"
+              id="tab-standard"
+              data-chart="standard">
+              Standard Scatter Plot
+            </button>
+            <button
+              class="tab-nav__button"
+              role="tab"
+              aria-selected="false"
+              aria-controls="bubble-scatter-panel"
+              id="tab-bubble"
+              data-chart="bubble">
+              Bubble Scatter Plot
+            </button>
+          </nav>
+
+          <!-- Tab Panels -->
+          <div class="tab-panels">
         <!-- Standard Scatter Panel -->
         <section
           class="tab-panel tab-panel--active"
@@ -102,12 +99,13 @@
           </div>
         </section>
 
-        <!-- Questionnaire Panel -->
-        <section
-          class="tab-panel"
-          id="questionnaire-scatter-panel"
-          role="tabpanel"
-          aria-labelledby="tab-questionnaire">
+          </div>
+        </section>
+
+        <aside class="questionnaire-area" aria-label="Participant Questionnaire">
+          <div class="sidebar-header">
+            <h3>Participant Questionnaire</h3>
+          </div>
           <form id="participant-form" class="questionnaire" novalidate>
             <section class="q-section" id="section-2">
               <h2>Section 2: Demographics</h2>
@@ -279,7 +277,7 @@
             <h2>Thank you for participating.</h2>
             <p>Your responses have been recorded.</p>
           </section>
-        </section>
+        </aside>
       </div>
     </main>
 

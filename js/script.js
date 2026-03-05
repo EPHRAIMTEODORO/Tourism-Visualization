@@ -587,6 +587,33 @@ function renderCharts(data) {
   if (appState.selectedCountries.bubble) {
     updateCountrySelection('bubble');
   }
+
+  syncQuestionnaireHeight();
+}
+
+function syncQuestionnaireHeight() {
+  const questionnaireArea = document.querySelector('.questionnaire-area');
+  const visualizationArea = document.querySelector('.visualization-area');
+  const alignmentNudge = 8;
+  if (!questionnaireArea) {
+    return;
+  }
+
+  if (window.innerWidth <= 1024) {
+    questionnaireArea.style.marginTop = '0';
+    questionnaireArea.style.height = 'auto';
+    return;
+  }
+
+  const activePanel = document.querySelector('.tab-panel--active');
+  const chartLayout = activePanel?.querySelector('.chart-layout');
+  const chartTopOffset = chartLayout && visualizationArea
+    ? chartLayout.getBoundingClientRect().top - visualizationArea.getBoundingClientRect().top
+    : 0;
+  const chartHeight = chartLayout?.getBoundingClientRect().height || 0;
+
+  questionnaireArea.style.marginTop = `${Math.max(0, Math.round(chartTopOffset - alignmentNudge))}px`;
+  questionnaireArea.style.height = chartHeight > 0 ? `${Math.round(chartHeight)}px` : 'auto';
 }
 
 function parseCsvWithMetadata(text) {

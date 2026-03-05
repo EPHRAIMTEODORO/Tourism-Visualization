@@ -48,6 +48,42 @@ footer {
   max-width: 680px;
 }
 
+.page-content {
+  display: grid;
+  grid-template-columns: 7fr 3fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.visualization-area {
+  min-width: 0;
+}
+
+.viz-instructions {
+  background: var(--card);
+  border: 1px solid var(--grid);
+  border-radius: 12px;
+  padding: 8px 12px;
+  margin-bottom: 8px;
+}
+
+.viz-instructions p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1.35;
+}
+
+.questionnaire-area {
+  background: var(--card);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+  margin-top: 0;
+  height: auto;
+  overflow-y: auto;
+}
+
 /* Old styles - replaced by tab layout */
 /* .charts {
   display: flex;
@@ -153,7 +189,7 @@ footer {
    ======================================== */
 .chart-layout {
   display: flex;
-  gap: 24px;
+  gap: 16px;
   background: var(--card);
   border-radius: 16px;
   padding: 24px;
@@ -213,12 +249,12 @@ svg:active {
    SIDEBAR
    ======================================== */
 .chart-sidebar {
-  width: 280px;
+  width: 220px;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
   border-left: 1px solid var(--grid);
-  padding-left: 24px;
+  padding-left: 16px;
 }
 
 .sidebar-header {
@@ -405,8 +441,8 @@ svg:active {
 }
 
 /* ========================================
-   QUESTIONNAIRE TAB
-   ======================================== */
+  QUESTIONNAIRE
+  ======================================== */
 .questionnaire {
   display: grid;
   gap: 16px;
@@ -531,6 +567,17 @@ svg:active {
    RESPONSIVE ADJUSTMENTS
    ======================================== */
 @media (max-width: 1024px) {
+  .page-content {
+    grid-template-columns: 1fr;
+  }
+
+  .questionnaire-area {
+    margin-top: 0;
+    height: auto;
+    max-height: none;
+    overflow-y: visible;
+  }
+
   .chart-layout {
     flex-direction: column;
   }

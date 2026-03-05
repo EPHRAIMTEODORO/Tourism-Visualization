@@ -1,0 +1,208 @@
+Year used in the data visualization per country:
+Albania: 2022
+Algeria: 2022
+Andorra: 2021
+Angola: 2022
+Anguilla: 2022
+Antigua and Barbuda: 2022
+Argentina: 2022
+Armenia: 2022
+Aruba: 2022
+Australia: 2022
+Austria: 2022
+Azerbaijan: 2022
+Bahamas: 2022
+Bahrain: 2022
+Bangladesh: 2021
+Barbados: 2022
+Belarus: 2021
+Belgium: 2022
+Belize: 2022
+Benin: 2020
+Bermuda: 2021
+Bhutan: 2022
+Bolivia (Plurin. State of): 2022
+Bonaire: 2005
+Bosnia and Herzegovina: 2022
+Botswana: 2021
+Brazil: 2022
+British Virgin Islands: 2010
+Brunei Darussalam: 2021
+Bulgaria: 2022
+Burkina Faso: 2021
+Burundi: 2010
+Cabo Verde: 2022
+Cambodia: 2022
+Cameroon: 2010
+Canada: 2010
+Cayman Islands: 2021
+Central African Republic: 2020
+Chad: 1995
+Chile: 2022
+China: 2020
+China, Hong Kong SAR: 2010
+China, Macao SAR: 2022
+Colombia: 2022
+Comoros: 2021
+Congo: 2010
+Cook Islands: 2021
+Costa Rica: 2022
+Croatia: 2022
+Cuba: 2022
+Curaçao: 2022
+Cyprus: 2021
+Czechia: 2021
+Côte d’Ivoire: 2021
+Dem. Rep. of the Congo: 2021
+Denmark: 2022
+Djibouti: 2022
+Dominica: 2022
+Dominican Republic: 2022
+Ecuador: 2022
+Egypt: 2022
+El Salvador: 2022
+Eritrea: 2005
+Estonia: 2022
+Eswatini: 2022
+Ethiopia: 2022
+Fiji: 2022
+Finland: 2022
+France: 2021
+French Guiana: 2005
+French Polynesia: 2010
+Gabon: 2005
+Gambia: 2022
+Georgia: 2022
+Germany: 2022
+Ghana: 2022
+Greece: 2022
+Grenada: 2022
+Guadeloupe: 2010
+Guatemala: 2022
+Guinea: 2010
+Guinea-Bissau: 2010
+Guyana: 2021
+Haiti: 2021
+Honduras: 2022
+Hungary: 2022
+Iceland: 2021
+India: 2021
+Indonesia: 2021
+Iran (Islamic Republic of): 2010
+Iraq: 2010
+Ireland: 2010
+Israel: 2022
+Italy: 2022
+Jamaica: 2022
+Japan: 2022
+Jordan: 2022
+Kazakhstan: 2022
+Kenya: 2010
+Kiribati: 2022
+Kuwait: 2021
+Kyrgyzstan: 2022
+Lao People's Dem. Rep.: 2020
+Latvia: 2005
+Lebanon: 2021
+Lesotho: 2010
+Libya: 2005
+Lithuania: 2022
+Luxembourg: 2022
+Madagascar: 2021
+Malawi: 2021
+Malaysia: 2022
+Maldives: 2022
+Mali: 2021
+Malta: 2022
+Marshall Islands: 2020
+Martinique: 2022
+Mauritius: 2022
+Mexico: 2022
+Micronesia (Fed. States of): 2010
+Mongolia: 2022
+Montenegro: 2022
+Montserrat: 2021
+Morocco: 2022
+Mozambique: 2021
+Myanmar: 2010
+Namibia: 2022
+Nepal: 2022
+Netherlands (Kingdom of the): 2022
+New Caledonia: 2010
+New Zealand: 2022
+Nicaragua: 2022
+Niger: 2020
+Nigeria: 2022
+Niue: 2010
+North Macedonia: 2022
+Northern Mariana Islands: 1995
+Norway: 2022
+Oman: 2021
+Other non-specified areas: 2022
+Pakistan: 2010
+Palau: 2010
+Panama: 2022
+Papua New Guinea: 2021
+Paraguay: 2022
+Peru: 2022
+Philippines: 2022
+Poland: 2022
+Portugal: 2022
+Puerto Rico: 2022
+Qatar: 2022
+Republic of Korea: 2022
+Republic of Moldova: 2022
+Romania: 2022
+Russian Federation: 2020
+Rwanda: 2021
+Réunion: 2022
+Saint Kitts and Nevis: 2022
+Saint Lucia: 2022
+Saint Vincent & Grenadines: 2022
+Samoa: 2022
+San Marino: 2021
+Sao Tome and Principe: 2021
+Saudi Arabia: 2022
+Senegal: 2010
+Serbia: 2022
+Seychelles: 2022
+Sierra Leone: 2021
+Singapore: 2022
+Sint Maarten (Dutch part): 2022
+Slovakia: 2010
+Slovenia: 2022
+Solomon Islands: 2020
+South Africa: 2022
+Spain: 2022
+Sri Lanka: 2022
+State of Palestine: 2020
+Sudan: 2010
+Suriname: 2010
+Sweden: 2022
+Switzerland: 2022
+Syrian Arab Republic: 2010
+Tajikistan: 2021
+Thailand: 2021
+Timor-Leste: 2021
+Togo: 2020
+Tonga: 2022
+Trinidad and Tobago: 2022
+Tunisia: 2022
+Turks and Caicos Islands: 1995
+Tuvalu: 2022
+Türkiye: 2022
+Uganda: 2021
+Ukraine: 2022
+United Arab Emirates: 2021
+United Kingdom: 2022
+United Rep. of Tanzania: 2021
+United States Virgin Islands: 2021
+United States of America: 2022
+Uruguay: 2010
+Uzbekistan: 2022
+Vanuatu: 2022
+Venezuela (Boliv. Rep. of): 2010
+Viet Nam: 2021
+Yemen: 2010
+Zambia: 2021
+Zimbabwe: 2020
