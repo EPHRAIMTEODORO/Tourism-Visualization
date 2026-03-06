@@ -280,8 +280,8 @@ function buildScales(data) {
   const arrivalsExtent = d3.extent(data, (d) => d.tourist_arrivals);
   const expenditureExtent = d3.extent(data, (d) => d.tourism_expenditure);
 
-  const xDomain = [arrivalsExtent[0] * 0.9, arrivalsExtent[1] * 1.05];
-  const yDomain = [expenditureExtent[0] * 0.85, expenditureExtent[1] * 1.05];
+  const xDomain = [0, arrivalsExtent[1] * 1.05];
+  const yDomain = [0, expenditureExtent[1] * 1.05];
 
   return { xDomain, yDomain };
 }
@@ -331,8 +331,9 @@ function createScatterPlot({
 
   // Create zoom behavior
   const zoom = d3.zoom()
-    .scaleExtent([0.5, 10])
+    .scaleExtent([1, 30])
     .extent([[0, 0], [innerWidth, innerHeight]])
+    .translateExtent([[0, 0], [innerWidth, innerHeight]])
     .on("zoom", zoomed);
 
   // Apply zoom to svg
@@ -470,10 +471,39 @@ function createScatterPlot({
       .attr("cy", (d) => currentYScale(d.tourism_expenditure));
   }
 
-  // Add reset zoom button
-  const resetButton = container
+  // Add zoom controls
+  const controls = container
+    .append("div")
+    .attr("class", "chart-controls");
+
+  controls
+    .append("button")
+    .attr("class", "zoom-btn")
+    .attr("type", "button")
+    .attr("aria-label", "Zoom out")
+    .text("−")
+    .on("click", () => {
+      svg.transition()
+        .duration(250)
+        .call(zoom.scaleBy, 1 / 1.4);
+    });
+
+  controls
+    .append("button")
+    .attr("class", "zoom-btn")
+    .attr("type", "button")
+    .attr("aria-label", "Zoom in")
+    .text("+")
+    .on("click", () => {
+      svg.transition()
+        .duration(250)
+        .call(zoom.scaleBy, 1.4);
+    });
+
+  controls
     .append("button")
     .attr("class", "reset-zoom-btn")
+    .attr("type", "button")
     .text("Reset Zoom")
     .on("click", () => {
       svg.transition()
