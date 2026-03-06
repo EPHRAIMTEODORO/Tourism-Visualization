@@ -500,6 +500,13 @@ svg:active {
   line-height: 1.4;
 }
 
+.helper-text {
+  margin: 4px 0 8px;
+  color: var(--muted);
+  font-size: 0.85rem;
+  line-height: 1.35;
+}
+
 .required {
   color: #9b1f1f;
 }

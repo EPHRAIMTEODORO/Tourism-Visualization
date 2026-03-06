@@ -125,7 +125,7 @@
 
               <fieldset class="q-block">
                 <legend>
-                  Have you taken a data visualization or statistics course?
+                  Have you taken a class in data visualization or statistics?
                   <span class="required">*</span>
                 </legend>
                 <label><input type="radio" name="course" value="Yes" required /> Yes</label>
@@ -141,7 +141,7 @@
 
               <div class="q-block">
                 <label for="practice-response">
-                  Locate a country with tourism expenditure higher than $20 billion.
+                  Find one country with tourism expenditure greater than $20 billion.
                 </label>
                 <input
                   id="practice-response"
@@ -158,78 +158,178 @@
             </section>
 
             <section class="q-section" id="section-4">
-              <h2>Section 4: Visualization Condition A</h2>
-              <p class="instruction">Condition A corresponds to the first visualization (standard scatter plot).</p>
+              <h2>Section 4: Condition A (Standard Scatter Plot)</h2>
+              <p class="instruction">Use the <strong>Standard Scatter Plot</strong> tab to answer these questions.</p>
+
+              <fieldset class="q-block">
+                <legend>
+                  1) Overall trend: when tourist arrivals increase, tourism expenditure usually...
+                  <span class="required">*</span>
+                </legend>
+                <label><input type="radio" name="conditionA-correlation" value="Positive" required /> Also increases (positive)</label>
+                <label><input type="radio" name="conditionA-correlation" value="Negative" /> Decreases (negative)</label>
+                <label><input type="radio" name="conditionA-correlation" value="No clear relationship" /> No clear relationship</label>
+              </fieldset>
 
               <div class="q-block">
-                <label for="condition-a-country">
-                  1) Identify a country that has relatively low tourist arrivals but unusually high tourism expenditure.
+                <label for="condition-a-position-outlier">
+                  2) Name one country that looks far away from most other points (an outlier)
                   <span class="required">*</span>
                 </label>
-                <input id="condition-a-country" type="text" class="text-input" required />
+                <p class="helper-text">Tip: An outlier is a point that is noticeably separated from the main group of points.</p>
+                <input id="condition-a-position-outlier" type="text" class="text-input" required />
               </div>
 
               <fieldset class="q-block">
                 <legend>
-                  2) What best describes the relationship between tourist arrivals and tourism expenditure?
+                  3) Where are most countries grouped on the chart?
                   <span class="required">*</span>
                 </legend>
-                <label><input type="radio" name="conditionA-relationship" value="Strong positive relationship" required /> Strong positive relationship</label>
-                <label><input type="radio" name="conditionA-relationship" value="Weak relationship" /> Weak relationship</label>
-                <label><input type="radio" name="conditionA-relationship" value="No clear relationship" /> No clear relationship</label>
+                <p class="helper-text">Tip: A cluster means many points appearing close together in one area.</p>
+                <label><input type="radio" name="conditionA-cluster" value="Lower-left" required /> Lower-left</label>
+                <label><input type="radio" name="conditionA-cluster" value="Center" /> Center</label>
+                <label><input type="radio" name="conditionA-cluster" value="Upper-right" /> Upper-right</label>
+                <label><input type="radio" name="conditionA-cluster" value="Evenly scattered" /> Evenly scattered</label>
+              </fieldset>
+
+              <div class="q-block">
+                <label for="condition-a-largest-pop">
+                  4) Name one country you think has the largest population in this chart
+                  <span class="required">*</span>
+                </label>
+                <input id="condition-a-largest-pop" type="text" class="text-input" required />
+              </div>
+
+              <fieldset class="q-block">
+                <legend>
+                  5) How easy was it to see overall patterns? (1 = Very Difficult, 5 = Very Easy)
+                  <span class="required">*</span>
+                </legend>
+                <div class="likert-row" role="radiogroup" aria-label="Condition A pattern ease rating">
+                  <label><input type="radio" name="conditionA-pattern-ease" value="1" required /> 1</label>
+                  <label><input type="radio" name="conditionA-pattern-ease" value="2" /> 2</label>
+                  <label><input type="radio" name="conditionA-pattern-ease" value="3" /> 3</label>
+                  <label><input type="radio" name="conditionA-pattern-ease" value="4" /> 4</label>
+                  <label><input type="radio" name="conditionA-pattern-ease" value="5" /> 5</label>
+                </div>
               </fieldset>
 
               <fieldset class="q-block">
                 <legend>
-                  3) How easy was it to identify patterns and outliers using this visualization?
+                  6) How easy was it to find outliers? (1 = Very Difficult, 5 = Very Easy)
                   <span class="required">*</span>
                 </legend>
-                <div class="likert-row" role="radiogroup" aria-label="Condition A ease rating">
-                  <label><input type="radio" name="conditionA-ease" value="1" required /> 1</label>
-                  <label><input type="radio" name="conditionA-ease" value="2" /> 2</label>
-                  <label><input type="radio" name="conditionA-ease" value="3" /> 3</label>
-                  <label><input type="radio" name="conditionA-ease" value="4" /> 4</label>
-                  <label><input type="radio" name="conditionA-ease" value="5" /> 5</label>
+                <div class="likert-row" role="radiogroup" aria-label="Condition A outlier ease rating">
+                  <label><input type="radio" name="conditionA-outlier-ease" value="1" required /> 1</label>
+                  <label><input type="radio" name="conditionA-outlier-ease" value="2" /> 2</label>
+                  <label><input type="radio" name="conditionA-outlier-ease" value="3" /> 3</label>
+                  <label><input type="radio" name="conditionA-outlier-ease" value="4" /> 4</label>
+                  <label><input type="radio" name="conditionA-outlier-ease" value="5" /> 5</label>
                 </div>
-                <small>1 = Very Difficult, 5 = Very Easy</small>
+              </fieldset>
+
+              <fieldset class="q-block">
+                <legend>
+                  7) How easy was it to compare population differences? (1 = Very Difficult, 5 = Very Easy)
+                  <span class="required">*</span>
+                </legend>
+                <div class="likert-row" role="radiogroup" aria-label="Condition A population comparison ease rating">
+                  <label><input type="radio" name="conditionA-population-ease" value="1" required /> 1</label>
+                  <label><input type="radio" name="conditionA-population-ease" value="2" /> 2</label>
+                  <label><input type="radio" name="conditionA-population-ease" value="3" /> 3</label>
+                  <label><input type="radio" name="conditionA-population-ease" value="4" /> 4</label>
+                  <label><input type="radio" name="conditionA-population-ease" value="5" /> 5</label>
+                </div>
               </fieldset>
             </section>
 
             <section class="q-section" id="section-5">
-              <h2>Section 5: Visualization Condition B</h2>
-              <p class="instruction">Condition B corresponds to the second visualization (bubble scatter plot).</p>
+              <h2>Section 5: Condition B (Bubble Scatter Plot)</h2>
+              <p class="instruction">Use the <strong>Bubble Scatter Plot</strong> tab to answer these questions.</p>
 
               <div class="q-block">
-                <label for="condition-b-country">
-                  1) Identify a country that has relatively low tourist arrivals but unusually high tourism expenditure.
+                <label for="condition-b-high-impact">
+                  1) Name one country with low arrivals but high tourism expenditure
                   <span class="required">*</span>
                 </label>
-                <input id="condition-b-country" type="text" class="text-input" required />
+                <input id="condition-b-high-impact" type="text" class="text-input" required />
+              </div>
+
+              <div class="q-block">
+                <label for="condition-b-largest-pop">
+                  2) Name one country you think has the largest population in this chart
+                  <span class="required">*</span>
+                </label>
+                <input id="condition-b-largest-pop" type="text" class="text-input" required />
               </div>
 
               <fieldset class="q-block">
                 <legend>
-                  2) What best describes the relationship between tourist arrivals and tourism expenditure?
+                  3) Did you notice any country where population size and arrivals do not seem to match?
                   <span class="required">*</span>
                 </legend>
-                <label><input type="radio" name="conditionB-relationship" value="Strong positive relationship" required /> Strong positive relationship</label>
-                <label><input type="radio" name="conditionB-relationship" value="Weak relationship" /> Weak relationship</label>
-                <label><input type="radio" name="conditionB-relationship" value="No clear relationship" /> No clear relationship</label>
+                <label><input type="radio" name="conditionB-inconsistency" value="Yes" required /> Yes</label>
+                <label><input type="radio" name="conditionB-inconsistency" value="No" /> No</label>
+              </fieldset>
+
+              <div class="q-block">
+                <label for="condition-b-inconsistency-country">
+                  If yes, name the country. If no, type N/A.
+                  <span class="required">*</span>
+                </label>
+                <input id="condition-b-inconsistency-country" type="text" class="text-input" required />
+              </div>
+
+              <fieldset class="q-block">
+                <legend>
+                  4) Overall trend: when tourist arrivals increase, tourism expenditure usually...
+                  <span class="required">*</span>
+                </legend>
+                <label><input type="radio" name="conditionB-correlation" value="Positive" required /> Also increases (positive)</label>
+                <label><input type="radio" name="conditionB-correlation" value="Negative" /> Decreases (negative)</label>
+                <label><input type="radio" name="conditionB-correlation" value="No clear relationship" /> No clear relationship</label>
               </fieldset>
 
               <fieldset class="q-block">
                 <legend>
-                  3) How easy was it to identify patterns and outliers using this visualization?
+                  5) How easy was it to see overall patterns? (1 = Very Difficult, 5 = Very Easy)
                   <span class="required">*</span>
                 </legend>
-                <div class="likert-row" role="radiogroup" aria-label="Condition B ease rating">
-                  <label><input type="radio" name="conditionB-ease" value="1" required /> 1</label>
-                  <label><input type="radio" name="conditionB-ease" value="2" /> 2</label>
-                  <label><input type="radio" name="conditionB-ease" value="3" /> 3</label>
-                  <label><input type="radio" name="conditionB-ease" value="4" /> 4</label>
-                  <label><input type="radio" name="conditionB-ease" value="5" /> 5</label>
+                <div class="likert-row" role="radiogroup" aria-label="Condition B pattern ease rating">
+                  <label><input type="radio" name="conditionB-pattern-ease" value="1" required /> 1</label>
+                  <label><input type="radio" name="conditionB-pattern-ease" value="2" /> 2</label>
+                  <label><input type="radio" name="conditionB-pattern-ease" value="3" /> 3</label>
+                  <label><input type="radio" name="conditionB-pattern-ease" value="4" /> 4</label>
+                  <label><input type="radio" name="conditionB-pattern-ease" value="5" /> 5</label>
                 </div>
-                <small>1 = Very Difficult, 5 = Very Easy</small>
+              </fieldset>
+
+              <fieldset class="q-block">
+                <legend>
+                  6) How easy was it to find outliers? (1 = Very Difficult, 5 = Very Easy)
+                  <span class="required">*</span>
+                </legend>
+                <div class="likert-row" role="radiogroup" aria-label="Condition B outlier ease rating">
+                  <label><input type="radio" name="conditionB-outlier-ease" value="1" required /> 1</label>
+                  <label><input type="radio" name="conditionB-outlier-ease" value="2" /> 2</label>
+                  <label><input type="radio" name="conditionB-outlier-ease" value="3" /> 3</label>
+                  <label><input type="radio" name="conditionB-outlier-ease" value="4" /> 4</label>
+                  <label><input type="radio" name="conditionB-outlier-ease" value="5" /> 5</label>
+                </div>
+              </fieldset>
+
+              <fieldset class="q-block">
+                <legend>
+                  7) How easy was it to compare population differences? (1 = Very Difficult, 5 = Very Easy)
+                  <span class="required">*</span>
+                </legend>
+                <div class="likert-row" role="radiogroup" aria-label="Condition B population comparison ease rating">
+                  <label><input type="radio" name="conditionB-population-ease" value="1" required /> 1</label>
+                  <label><input type="radio" name="conditionB-population-ease" value="2" /> 2</label>
+                  <label><input type="radio" name="conditionB-population-ease" value="3" /> 3</label>
+                  <label><input type="radio" name="conditionB-population-ease" value="4" /> 4</label>
+                  <label><input type="radio" name="conditionB-population-ease" value="5" /> 5</label>
+                </div>
               </fieldset>
             </section>
 
@@ -238,16 +338,34 @@
 
               <fieldset class="q-block">
                 <legend>
-                  Which visualization made it easier to identify countries with high economic impact relative to visitor volume?
+                  1) Which chart made it easier to identify patterns?
                   <span class="required">*</span>
                 </legend>
-                <label><input type="radio" name="comparison-choice" value="Bubble scatter plot" required /> Bubble scatter plot</label>
-                <label><input type="radio" name="comparison-choice" value="Standard scatter plot" /> Standard scatter plot</label>
+                <label><input type="radio" name="comparison-patterns" value="Standard scatter plot" required /> Standard scatter plot</label>
+                <label><input type="radio" name="comparison-patterns" value="Bubble scatter plot" /> Bubble scatter plot</label>
+              </fieldset>
+
+              <fieldset class="q-block">
+                <legend>
+                  2) Which chart made it easier to identify outliers?
+                  <span class="required">*</span>
+                </legend>
+                <label><input type="radio" name="comparison-outliers" value="Standard scatter plot" required /> Standard scatter plot</label>
+                <label><input type="radio" name="comparison-outliers" value="Bubble scatter plot" /> Bubble scatter plot</label>
+              </fieldset>
+
+              <fieldset class="q-block">
+                <legend>
+                  3) Which chart made it easier to compare population differences?
+                  <span class="required">*</span>
+                </legend>
+                <label><input type="radio" name="comparison-population" value="Standard scatter plot" required /> Standard scatter plot</label>
+                <label><input type="radio" name="comparison-population" value="Bubble scatter plot" /> Bubble scatter plot</label>
               </fieldset>
 
               <div class="q-block">
                 <label for="comparison-explanation">
-                  Briefly explain your choice (1–2 sentences).
+                  4) Briefly explain your choices (1–2 sentences)
                   <span class="required">*</span>
                 </label>
                 <textarea id="comparison-explanation" class="text-area" rows="3" required></textarea>
@@ -258,10 +376,10 @@
               <h2>Section 7: Final Question</h2>
               <div class="q-block">
                 <label for="final-response">
-                  Did you find either visualization confusing? If yes, explain briefly.
+                  Did you find either visualization confusing? If yes, explain.
                   <span class="required">*</span>
                 </label>
-                <textarea id="final-response" class="text-area" rows="3" required></textarea>
+                <input id="final-response" type="text" class="text-input" required />
               </div>
             </section>
 

@@ -16,7 +16,60 @@ function isFieldComplete(form, field) {
   return field.value.trim().length > 0;
 }
 
-const SUBMIT_ENDPOINT = "/.netlify/functions/submit-response";
+const SUBMIT_ENDPOINT = "/api/responses";
+const CONDITION_ORDER_KEY = "questionnaire_condition_order";
+
+function parseYesNoToBoolean(value) {
+  if (value === "Yes") return true;
+  if (value === "No") return false;
+  return null;
+}
+
+function getConditionOrder() {
+  const stored = sessionStorage.getItem(CONDITION_ORDER_KEY);
+
+  if (stored) {
+    try {
+      const parsed = JSON.parse(stored);
+      if (
+        Array.isArray(parsed) &&
+        parsed.length === 2 &&
+        parsed.includes("section-4") &&
+        parsed.includes("section-5")
+      ) {
+        return parsed;
+      }
+    } catch (error) {
+      console.warn("Invalid stored condition order, generating a new one.", error);
+    }
+  }
+
+  const randomized = Math.random() < 0.5
+    ? ["section-4", "section-5"]
+    : ["section-5", "section-4"];
+
+  sessionStorage.setItem(CONDITION_ORDER_KEY, JSON.stringify(randomized));
+  return randomized;
+}
+
+function applyConditionOrder(form) {
+  const section4 = document.getElementById("section-4");
+  const section5 = document.getElementById("section-5");
+  const section6 = document.getElementById("section-6");
+
+  if (!form || !section4 || !section5 || !section6) {
+    return;
+  }
+
+  const sectionById = {
+    "section-4": section4,
+    "section-5": section5
+  };
+
+  getConditionOrder().forEach((sectionId) => {
+    form.insertBefore(sectionById[sectionId], section6);
+  });
+}
 
 window.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("participant-form");
@@ -31,6 +84,8 @@ window.addEventListener("DOMContentLoaded", () => {
   if (!form || !submitButton) {
     return;
   }
+
+  applyConditionOrder(form);
 
   const requiredFields = [...form.querySelectorAll("[required]")];
 
@@ -70,25 +125,35 @@ window.addEventListener("DOMContentLoaded", () => {
       demographics: {
         age: getRadioValue(form, "age"),
         major: getRadioValue(form, "major"),
-        tookDataVizOrStatisticsCourse: getRadioValue(form, "course")
+        takenCourse: parseYesNoToBoolean(getRadioValue(form, "course"))
       },
       conditionA: {
-        identifiedCountry: getTextValue("condition-a-country"),
-        relationshipDescription: getRadioValue(form, "conditionA-relationship"),
-        easeOfUse: Number(getRadioValue(form, "conditionA-ease"))
+        correlationDirection: getRadioValue(form, "conditionA-correlation"),
+        outlierCountry: getTextValue("condition-a-position-outlier"),
+        clusterLocation: getRadioValue(form, "conditionA-cluster"),
+        largestPopulation: getTextValue("condition-a-largest-pop"),
+        patternEase: Number(getRadioValue(form, "conditionA-pattern-ease")),
+        outlierEase: Number(getRadioValue(form, "conditionA-outlier-ease")),
+        populationEase: Number(getRadioValue(form, "conditionA-population-ease"))
       },
       conditionB: {
-        identifiedCountry: getTextValue("condition-b-country"),
-        relationshipDescription: getRadioValue(form, "conditionB-relationship"),
-        easeOfUse: Number(getRadioValue(form, "conditionB-ease"))
+        highImpactCountry: getTextValue("condition-b-high-impact"),
+        largestPopulation: getTextValue("condition-b-largest-pop"),
+        populationInconsistency: parseYesNoToBoolean(getRadioValue(form, "conditionB-inconsistency")),
+        inconsistentCountry: getTextValue("condition-b-inconsistency-country"),
+        correlationDirection: getRadioValue(form, "conditionB-correlation"),
+        patternEase: Number(getRadioValue(form, "conditionB-pattern-ease")),
+        outlierEase: Number(getRadioValue(form, "conditionB-outlier-ease")),
+        populationEase: Number(getRadioValue(form, "conditionB-population-ease"))
       },
       comparison: {
-        easierVisualization: getRadioValue(form, "comparison-choice"),
+        easierPattern: getRadioValue(form, "comparison-patterns"),
+        easierOutlier: getRadioValue(form, "comparison-outliers"),
+        easierPopulation: getRadioValue(form, "comparison-population"),
         explanation: getTextValue("comparison-explanation")
       },
-      final: {
-        confusionFeedback: getTextValue("final-response")
-      }
+      finalComment: getTextValue("final-response"),
+      timestamp: new Date().toISOString()
     };
 
     submitButton.disabled = true;
