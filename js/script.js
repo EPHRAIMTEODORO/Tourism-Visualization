@@ -1,8 +1,15 @@
 const CSV_PATH = "data/Tourist-VisitorsArrivalandExpenditure.csv";
+const POP_CSV_PATH = "data/population.csv";
+
+const POP_NAME_MAP = {
+  "Bahamas (The)": "Bahamas",
+  "C\xf4te d\x92Ivoire": "Côte d\u2019Ivoire"
+};
 
 const formatNumber = d3.format(",");
 const formatMillions = (value) => `${d3.format(".2f")(value / 1e6)}M`;
 const formatBillions = (value) => `$${d3.format(".2f")(value / 1e9)}B`;
+const formatPopulation = (value) => `${d3.format(".2f")(value)}M`;
 
 // Application state
 const appState = {
@@ -409,6 +416,9 @@ function createScatterPlot({
   dots
     .on("mouseenter", (event, d) => {
       d3.select(event.currentTarget).classed("dot--highlight", true);
+      const popLine = d.population != null
+        ? `<br/>Population: ${formatPopulation(d.population)}`
+        : "";
       tooltip
         .classed("is-visible", true)
         .attr("aria-hidden", "false")
@@ -417,7 +427,7 @@ function createScatterPlot({
             d.tourist_arrivals
           )} (${d.year})<br/>Expenditure: ${formatBillions(
             d.tourism_expenditure
-          )} (${d.year})`
+          )} (${d.year})${popLine}`
         );
     })
     .on("mousemove", (event) => {
@@ -585,19 +595,19 @@ function renderCharts(data) {
     legendContainerId: "#legend-standard"
   });
 
-  const maxExpenditure = d3.max(data, (d) => d.tourism_expenditure);
+  const maxPopulation = d3.max(data, (d) => d.population) || 1;
   const bubbleScale = d3
     .scaleSqrt()
-    .domain([0, maxExpenditure])
-    .range([4, 18]);
+    .domain([0, maxPopulation])
+    .range([4, 30]);
 
   createScatterPlot({
     elementId: "#bubble-scatter",
     data,
     xScale,
     yScale,
-    radiusAccessor: (d) => bubbleScale(d.tourism_expenditure),
-    chartTitle: "Bubble Scatter Plot",
+    radiusAccessor: (d) => bubbleScale(d.population),
+    chartTitle: "Bubble Scatter Plot (size = population)",
     colorScale,
     legendContainerId: "#legend-bubble"
   });
@@ -656,29 +666,64 @@ function parseCsvWithMetadata(text) {
   return d3.csvParse(trimmedText);
 }
 
-d3.text(CSV_PATH)
-  .then((text) => {
-    const rows = parseCsvWithMetadata(text);
-    const dataset = buildDataset(rows);
+function buildPopulationMap(rows) {
+  const popMap = new Map();
+
+  rows.forEach((row) => {
+    let country = row[""]?.trim() || row["Region/Country/Area"]?.trim();
+    if (!country) return;
+
+    country = POP_NAME_MAP[country] || country;
+
+    const series = row.Series?.trim();
+    if (series !== "Population mid-year estimates (millions)") return;
+
+    const value = parseNumber(row.Value);
+    const year = Number(row.Year);
+    if (value === null || !Number.isFinite(year)) return;
+
+    const existing = popMap.get(country);
+    if (!existing || year > existing.year) {
+      popMap.set(country, { year, population: value });
+    }
+  });
+
+  return popMap;
+}
+
+Promise.all([d3.text(CSV_PATH), d3.text(POP_CSV_PATH)])
+  .then(([tourismText, popText]) => {
+    const tourismRows = parseCsvWithMetadata(tourismText);
+    const dataset = buildDataset(tourismRows);
     if (!dataset.length) {
       throw new Error("No valid records found in the CSV file.");
     }
 
-    appState.dataset = dataset;
+    const popRows = parseCsvWithMetadata(popText);
+    const popMap = buildPopulationMap(popRows);
+
+    dataset.forEach((d) => {
+      const pop = popMap.get(d.country);
+      d.population = pop ? pop.population : null;
+    });
+
+    const filteredDataset = dataset.filter((d) => d.population != null);
+
+    appState.dataset = filteredDataset;
 
     // Initialize tabs and search
     initTabs();
     initSearch();
 
     // Render charts
-    renderCharts(dataset);
+    renderCharts(filteredDataset);
 
     // Handle window resize with debouncing for better performance
     let resizeTimeout;
     window.addEventListener("resize", () => {
       clearTimeout(resizeTimeout);
       resizeTimeout = setTimeout(() => {
-        renderCharts(dataset);
+        renderCharts(filteredDataset);
       }, 250);
     });
   })
