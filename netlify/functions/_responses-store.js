@@ -233,6 +233,18 @@ async function ensureSchema() {
       );
     `);
 
+    // Tokens table
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS tokens (
+        id BIGSERIAL PRIMARY KEY,
+        token TEXT UNIQUE NOT NULL,
+        used BOOLEAN NOT NULL DEFAULT FALSE,
+        memo TEXT NOT NULL DEFAULT '',
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        used_at TIMESTAMPTZ
+      );
+    `);
+
     await db.query(`
       CREATE INDEX IF NOT EXISTS idx_questionnaire_ease_fields
       ON questionnaire_responses (

@@ -76,7 +76,9 @@ async function ensureSchema() {
       ADD COLUMN IF NOT EXISTS took_course BOOLEAN,
       ADD COLUMN IF NOT EXISTS condition_a_ease SMALLINT CHECK (condition_a_ease BETWEEN 1 AND 5),
       ADD COLUMN IF NOT EXISTS condition_b_ease SMALLINT CHECK (condition_b_ease BETWEEN 1 AND 5),
-      ADD COLUMN IF NOT EXISTS easier_visualization TEXT;
+      ADD COLUMN IF NOT EXISTS easier_visualization TEXT,
+      ADD COLUMN IF NOT EXISTS participant_id BIGINT,
+      ADD COLUMN IF NOT EXISTS condition_order TEXT;
     `);
 
     await db.query(`

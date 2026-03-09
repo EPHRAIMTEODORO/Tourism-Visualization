@@ -89,6 +89,56 @@ body {
   font-size: 1.05rem;
 }
 
+.token-section {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--grid);
+}
+
+.token-section label {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.token-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.token-input {
+  font-family: monospace;
+  font-size: 1.2rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  text-align: center;
+  padding: 10px 16px;
+  border: 2px solid var(--grid);
+  border-radius: 8px;
+  width: 160px;
+  outline: none;
+  transition: border-color .2s;
+}
+
+.token-input:focus {
+  border-color: var(--accent);
+}
+
+.token-input.token-valid {
+  border-color: #16a34a;
+}
+
+.token-input.token-invalid {
+  border-color: #dc2626;
+}
+
+.token-error {
+  color: #dc2626;
+  font-size: .85rem;
+  margin-top: 6px;
+  min-height: 1.2em;
+}
+
 footer {
   text-align: center;
   margin: 0;

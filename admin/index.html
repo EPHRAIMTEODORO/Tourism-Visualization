@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin — Token Management</title>
+  <style>
+    :root {
+      font-family: "Inter", "Segoe UI", system-ui, sans-serif;
+      --bg: #f7f9fc;
+      --card: #ffffff;
+      --text: #1f2a44;
+      --muted: #5f6b7a;
+      --accent: #2f6fed;
+      --green: #16a34a;
+      --red: #dc2626;
+      --border: #dfe5ef;
+    }
+    * { box-sizing: border-box; margin: 0; }
+    body { background: var(--bg); color: var(--text); padding: 24px; }
+    h1 { font-size: 1.5rem; margin-bottom: 16px; }
+
+    /* Login */
+    .login-wrap {
+      display: flex; justify-content: center; align-items: center;
+      min-height: 80vh;
+    }
+    .login-card {
+      background: var(--card); border-radius: 12px; padding: 32px;
+      box-shadow: 0 2px 12px rgba(0,0,0,.08); max-width: 360px; width: 100%;
+    }
+    .login-card h1 { text-align: center; margin-bottom: 20px; }
+    .login-card input {
+      width: 100%; padding: 10px 14px; border: 1px solid var(--border);
+      border-radius: 8px; font-size: 1rem; margin-bottom: 12px;
+    }
+    .login-card button {
+      width: 100%; padding: 10px; background: var(--accent); color: #fff;
+      border: none; border-radius: 8px; font-size: 1rem; cursor: pointer;
+    }
+    .login-card button:hover { opacity: .9; }
+    .login-error { color: var(--red); font-size: .85rem; margin-top: 8px; }
+
+    /* Dashboard */
+    #dashboard { display: none; }
+    .toolbar { display: flex; gap: 12px; align-items: center; margin-bottom: 16px; flex-wrap: wrap; }
+    .toolbar button {
+      padding: 8px 16px; background: var(--accent); color: #fff;
+      border: none; border-radius: 8px; cursor: pointer; font-size: .9rem;
+    }
+    .toolbar button:hover { opacity: .9; }
+    .stats { font-size: .9rem; color: var(--muted); }
+
+    table {
+      width: 100%; border-collapse: collapse; background: var(--card);
+      border-radius: 8px; overflow: hidden;
+      box-shadow: 0 1px 6px rgba(0,0,0,.06);
+    }
+    th, td { padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border); }
+    th { background: #f0f3f8; font-size: .8rem; text-transform: uppercase; color: var(--muted); }
+    td { font-size: .9rem; }
+    .token-code { font-family: monospace; font-size: 1rem; font-weight: 600; letter-spacing: 1px; }
+    .badge {
+      display: inline-block; padding: 2px 10px; border-radius: 12px;
+      font-size: .78rem; font-weight: 600;
+    }
+    .badge-used { background: #fee2e2; color: var(--red); }
+    .badge-available { background: #dcfce7; color: var(--green); }
+    .memo-input {
+      width: 100%; min-width: 120px; padding: 4px 8px;
+      border: 1px solid var(--border); border-radius: 6px; font-size: .85rem;
+    }
+    .memo-input:focus { outline: 2px solid var(--accent); border-color: transparent; }
+  </style>
+</head>
+<body>
+
+<!-- Login Screen -->
+<div class="login-wrap" id="login-screen">
+  <div class="login-card">
+    <h1>Admin Login</h1>
+    <input type="password" id="password-input" placeholder="Password" autofocus />
+    <button id="login-btn">Login</button>
+    <div class="login-error" id="login-error"></div>
+  </div>
+</div>
+
+<!-- Dashboard -->
+<div id="dashboard">
+  <h1>Token Management</h1>
+  <div class="toolbar">
+    <button id="seed-btn">Generate 50 Tokens</button>
+    <span class="stats" id="stats"></span>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Token</th>
+        <th>Status</th>
+        <th>Memo (Name)</th>
+        <th>Used At</th>
+      </tr>
+    </thead>
+    <tbody id="token-body"></tbody>
+  </table>
+</div>
+
+<script>
+  let adminPassword = "";
+
+  const loginScreen = document.getElementById("login-screen");
+  const dashboard = document.getElementById("dashboard");
+  const passwordInput = document.getElementById("password-input");
+  const loginBtn = document.getElementById("login-btn");
+  const loginError = document.getElementById("login-error");
+  const seedBtn = document.getElementById("seed-btn");
+  const tokenBody = document.getElementById("token-body");
+  const statsEl = document.getElementById("stats");
+
+  passwordInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") loginBtn.click();
+  });
+
+  loginBtn.addEventListener("click", async () => {
+    const pw = passwordInput.value.trim();
+    if (!pw) return;
+    adminPassword = pw;
+    loginError.textContent = "";
+
+    try {
+      const res = await fetch("/api/tokens", {
+        headers: { "X-Admin-Password": adminPassword }
+      });
+      if (res.status === 401) {
+        loginError.textContent = "Incorrect password.";
+        return;
+      }
+      if (!res.ok) throw new Error("Server error");
+
+      const tokens = await res.json();
+      loginScreen.style.display = "none";
+      dashboard.style.display = "block";
+      renderTokens(tokens);
+    } catch (err) {
+      loginError.textContent = "Connection error. Try again.";
+    }
+  });
+
+  seedBtn.addEventListener("click", async () => {
+    seedBtn.disabled = true;
+    seedBtn.textContent = "Generating...";
+    try {
+      const res = await fetch("/api/tokens", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Admin-Password": adminPassword
+        },
+        body: JSON.stringify({ count: 50 })
+      });
+      const tokens = await res.json();
+      renderTokens(tokens);
+    } catch (err) {
+      alert("Failed to generate tokens.");
+    }
+    seedBtn.disabled = false;
+    seedBtn.textContent = "Generate 50 Tokens";
+  });
+
+  function renderTokens(tokens) {
+    const usedCount = tokens.filter((t) => t.used).length;
+    statsEl.textContent = `Total: ${tokens.length} | Used: ${usedCount} | Available: ${tokens.length - usedCount}`;
+
+    tokenBody.innerHTML = "";
+    tokens.forEach((t, i) => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${i + 1}</td>
+        <td class="token-code">${t.token}</td>
+        <td>
+          <span class="badge ${t.used ? "badge-used" : "badge-available"}">
+            ${t.used ? "Used" : "Available"}
+          </span>
+        </td>
+        <td>
+          <input class="memo-input" value="${escapeHtml(t.memo || "")}"
+                 data-id="${t.id}" placeholder="Enter name..." />
+        </td>
+        <td style="color: var(--muted); font-size: .83rem;">
+          ${t.used_at ? new Date(t.used_at).toLocaleString() : "—"}
+        </td>
+      `;
+      tokenBody.appendChild(tr);
+    });
+
+    // Debounced memo save
+    let debounceTimers = {};
+    tokenBody.querySelectorAll(".memo-input").forEach((input) => {
+      input.addEventListener("input", () => {
+        const id = input.dataset.id;
+        clearTimeout(debounceTimers[id]);
+        debounceTimers[id] = setTimeout(() => {
+          fetch("/api/tokens", {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
+              "X-Admin-Password": adminPassword
+            },
+            body: JSON.stringify({ id: Number(id), memo: input.value })
+          });
+        }, 600);
+      });
+    });
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement("div");
+    div.textContent = str;
+    return div.innerHTML;
+  }
+</script>
+</body>
+</html>

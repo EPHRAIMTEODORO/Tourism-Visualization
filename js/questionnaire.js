@@ -100,8 +100,54 @@ window.addEventListener("DOMContentLoaded", () => {
     if (progressLabel) progressLabel.textContent = `Step ${stepNum} / ${TOTAL_STEPS}`;
   }
 
+  // Token validation
+  const tokenInput = document.getElementById("token-input");
+  const tokenError = document.getElementById("token-error");
+  let tokenValidated = false;
+
+  if (tokenInput) {
+    tokenInput.addEventListener("input", () => {
+      tokenInput.value = tokenInput.value.toUpperCase().replace(/[^A-Z0-9]/g, "");
+      tokenInput.classList.remove("token-valid", "token-invalid");
+      tokenError.textContent = "";
+      tokenValidated = false;
+      introBegin.disabled = true;
+
+      if (tokenInput.value.length === 6) {
+        validateToken(tokenInput.value);
+      }
+    });
+  }
+
+  async function validateToken(code) {
+    try {
+      const res = await fetch("/api/validate-token", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: code })
+      });
+      const data = await res.json();
+
+      if (res.ok) {
+        tokenInput.classList.add("token-valid");
+        tokenError.textContent = "";
+        tokenValidated = true;
+        introBegin.disabled = false;
+        sessionStorage.setItem("studyToken", code);
+      } else {
+        tokenInput.classList.add("token-invalid");
+        tokenError.textContent = data.error || "Invalid token.";
+        tokenValidated = false;
+        introBegin.disabled = true;
+      }
+    } catch {
+      tokenError.textContent = "Connection error. Please try again.";
+    }
+  }
+
   if (introBegin) {
     introBegin.addEventListener("click", () => {
+      if (!tokenValidated) return;
       introPage.hidden = true;
       demographicsPage.hidden = false;
       if (progressBar) progressBar.hidden = false;
@@ -135,7 +181,12 @@ window.addEventListener("DOMContentLoaded", () => {
 
       try {
         // Register participant and get condition order
-        const res = await fetch("/api/register", { method: "POST" });
+        const studyToken = sessionStorage.getItem("studyToken") || "";
+        const res = await fetch("/api/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token: studyToken })
+        });
         if (!res.ok) throw new Error("Registration failed");
         const { participantId, conditionOrder } = await res.json();
 
