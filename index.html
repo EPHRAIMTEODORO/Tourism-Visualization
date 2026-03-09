@@ -11,105 +11,59 @@
   </head>
   <body>
     <main class="page">
-      <header class="page__header">
-        <h1>Tourism Data Scatter Plot Comparison</h1>
-        <p>
-          A research demo comparing a standard scatter plot with a bubble scatter
-          plot for tourism analysis.
-        </p>
-      </header>
+      <!-- ============ PROGRESS BAR (visible from demographics onward) ============ -->
+      <div class="q-progress" id="q-progress" hidden>
+        <div class="q-progress__bar">
+          <div class="q-progress__fill" id="q-progress-fill"></div>
+        </div>
+        <span class="q-progress__label" id="q-progress-label">Step 1 / 5</span>
+      </div>
 
-      <div class="page-content">
-        <section class="visualization-area">
-          <section class="viz-instructions" aria-label="Plot interaction instructions">
-            <p><strong>Zoom:</strong> Scroll to zoom, drag to pan, and click <strong>Reset Zoom</strong>. <strong>Tooltip:</strong> Hover any dot to see country, arrivals, expenditure, and year.</p>
-          </section>
+      <!-- ============ INTRO PAGE ============ -->
+      <section class="intro-page" id="intro-page">
+        <div class="intro-card">
+          <h1>Tourism Data Visualization Study</h1>
+          <p class="intro-subtitle">Thank you for participating in this research study.</p>
 
-          <!-- Tab Navigation -->
-          <nav class="tab-nav" role="tablist">
-            <button
-              class="tab-nav__button tab-nav__button--active"
-              role="tab"
-              aria-selected="true"
-              aria-controls="standard-scatter-panel"
-              id="tab-standard"
-              data-chart="standard">
-              Standard Scatter Plot
-            </button>
-            <button
-              class="tab-nav__button"
-              role="tab"
-              aria-selected="false"
-              aria-controls="bubble-scatter-panel"
-              id="tab-bubble"
-              data-chart="bubble">
-              Bubble Scatter Plot
-            </button>
-          </nav>
+          <div class="intro-body">
+            <p>
+              You are taking part in a study examining how different data visualizations
+              support understanding of tourism data. You will be shown visualizations that
+              display the same dataset but may differ in how the information is visually encoded.
+            </p>
 
-          <!-- Tab Panels -->
-          <div class="tab-panels">
-        <!-- Standard Scatter Panel -->
-        <section
-          class="tab-panel tab-panel--active"
-          id="standard-scatter-panel"
-          role="tabpanel"
-          aria-labelledby="tab-standard">
-          <div class="chart-layout">
-            <div class="chart-main">
-              <div id="standard-scatter" class="chart"></div>
-            </div>
-            <aside class="chart-sidebar">
-              <div class="sidebar-header">
-                <h3>Country Legend</h3>
-                <input
-                  type="search"
-                  class="search-input"
-                  placeholder="Search countries..."
-                  aria-label="Search countries"
-                  id="search-standard">
-              </div>
-              <div class="legend-container" id="legend-standard"></div>
-            </aside>
+            <h2>What you will do</h2>
+            <ul>
+              <li>Carefully examine each visualization presented</li>
+              <li>Complete a series of tasks related to identifying patterns and outliers</li>
+              <li>Base your answers solely on the information shown in the visualization</li>
+            </ul>
+
+            <h2>Before you begin</h2>
+            <ul>
+              <li>This experiment is <strong>untimed</strong> &mdash; work at your own pace</li>
+              <li>There are no right or wrong opinions for preference-based questions</li>
+              <li>No prior knowledge of tourism data or data visualization is required</li>
+              <li>A practice trial will be provided before the main tasks</li>
+            </ul>
+
+            <p>Your responses will be analyzed anonymously.</p>
           </div>
-        </section>
 
-        <!-- Bubble Scatter Panel -->
-        <section
-          class="tab-panel"
-          id="bubble-scatter-panel"
-          role="tabpanel"
-          aria-labelledby="tab-bubble">
-          <div class="chart-layout">
-            <div class="chart-main">
-              <div id="bubble-scatter" class="chart"></div>
-            </div>
-            <aside class="chart-sidebar">
-              <div class="sidebar-header">
-                <h3>Country Legend</h3>
-                <input
-                  type="search"
-                  class="search-input"
-                  placeholder="Search countries..."
-                  aria-label="Search countries"
-                  id="search-bubble">
-              </div>
-              <div class="legend-container" id="legend-bubble"></div>
-            </aside>
-          </div>
-        </section>
+          <button type="button" class="btn btn-primary intro-begin" id="intro-begin">
+            Begin Study
+          </button>
+        </div>
+      </section>
 
-          </div>
-        </section>
+      <!-- ============ DEMOGRAPHICS PAGE ============ -->
+      <section class="intro-page" id="demographics-page" hidden>
+        <div class="intro-card">
+          <h1>Demographics</h1>
+          <p class="intro-subtitle">Please tell us a little about yourself before we begin.</p>
 
-        <aside class="questionnaire-area" aria-label="Participant Questionnaire">
-          <div class="sidebar-header">
-            <h3>Participant Questionnaire</h3>
-          </div>
-          <form id="participant-form" class="questionnaire" novalidate>
-            <section class="q-section" id="section-2">
-              <h2>Section 2: Demographics</h2>
-
+          <div class="intro-body">
+            <form id="demographics-form" novalidate>
               <fieldset class="q-block">
                 <legend>Age <span class="required">*</span></legend>
                 <label><input type="radio" name="age" value="18–20" required /> 18–20</label>
@@ -131,39 +85,88 @@
                 <label><input type="radio" name="course" value="Yes" required /> Yes</label>
                 <label><input type="radio" name="course" value="No" /> No</label>
               </fieldset>
-            </section>
+            </form>
+          </div>
 
-            <section class="q-section" id="section-3">
-              <h2>Section 3: Practice Trial</h2>
-              <p class="instruction">
-                This is a practice question only and is not recorded.
-              </p>
+          <button type="button" class="btn btn-primary" id="demographics-next" disabled>
+            Next
+          </button>
+          <p class="status-message" id="demographics-message"></p>
+        </div>
+      </section>
 
-              <div class="q-block">
-                <label for="practice-response">
-                  Find one country with tourism expenditure greater than $20 billion.
-                </label>
-                <input
-                  id="practice-response"
-                  type="text"
-                  class="text-input"
-                  placeholder="Type a country name"
-                />
+      <!-- ============ MAIN CONTENT (hidden until Demographics done) ============ -->
+      <div class="main-content" id="main-content" hidden>
+      <div class="page-content">
+        <section class="visualization-area">
+          <!-- Standard Scatter Panel -->
+          <div class="chart-panel chart-panel--active" id="standard-scatter-panel">
+            <div class="chart-layout">
+              <aside class="chart-sidebar">
+                <div class="sidebar-header">
+                  <h3>Legend</h3>
+                  <input
+                    type="search"
+                    class="search-input"
+                    placeholder="Search..."
+                    aria-label="Search countries"
+                    id="search-standard">
+                </div>
+                <div class="legend-container" id="legend-standard"></div>
+              </aside>
+              <div class="chart-main">
+                <div class="chart-label">
+                  <span class="chart-label__title">Standard Scatter Plot</span>
+                  <span class="chart-label__hint">Scroll to zoom · Drag to pan · Hover for details</span>
+                </div>
+                <div id="standard-scatter" class="chart"></div>
               </div>
+            </div>
+          </div>
 
-              <div class="actions-row">
-                <button type="button" id="practice-continue" class="btn btn-secondary">Continue</button>
-                <p id="practice-feedback" class="status-message" aria-live="polite"></p>
+          <!-- Bubble Scatter Panel -->
+          <div class="chart-panel" id="bubble-scatter-panel">
+            <div class="chart-layout">
+              <aside class="chart-sidebar">
+                <div class="sidebar-header">
+                  <h3>Legend</h3>
+                  <input
+                    type="search"
+                    class="search-input"
+                    placeholder="Search..."
+                    aria-label="Search countries"
+                    id="search-bubble">
+                </div>
+                <div class="legend-container" id="legend-bubble"></div>
+              </aside>
+              <div class="chart-main">
+                <div class="chart-label">
+                  <span class="chart-label__title">Bubble Scatter Plot</span>
+                  <span class="chart-label__hint">Scroll to zoom · Drag to pan · Hover for details</span>
+                </div>
+                <div id="bubble-scatter" class="chart"></div>
               </div>
-            </section>
+            </div>
+          </div>
+        </section>
 
-            <section class="q-section" id="section-4">
-              <h2>Section 4: Condition A (Standard Scatter Plot)</h2>
-              <p class="instruction">Use the <strong>Standard Scatter Plot</strong> tab to answer these questions.</p>
+        <aside class="questionnaire-area" aria-label="Participant Questionnaire">
+          <div class="sidebar-header">
+            <h3>Participant Questionnaire</h3>
+          </div>
+          <form id="participant-form" class="questionnaire" novalidate>
+            <section class="q-section q-step q-step--active" data-q-step="1" id="section-4">
+              <fieldset class="q-block">
+                <legend>
+                  1) Name one country with high tourism expenditure.
+                  <span class="required">*</span>
+                </legend>
+                <input id="conditionA-warmup" type="text" class="text-input" placeholder="Type a country name" required />
+              </fieldset>
 
               <fieldset class="q-block">
                 <legend>
-                  1) Overall trend: when tourist arrivals increase, tourism expenditure usually...
+                  2) Overall trend: when tourist arrivals increase, tourism expenditure usually...
                   <span class="required">*</span>
                 </legend>
                 <label><input type="radio" name="conditionA-correlation" value="Positive" required /> Also increases (positive)</label>
@@ -171,18 +174,18 @@
                 <label><input type="radio" name="conditionA-correlation" value="No clear relationship" /> No clear relationship</label>
               </fieldset>
 
-              <div class="q-block">
-                <label for="condition-a-position-outlier">
-                  2) Name one country that looks far away from most other points (an outlier)
+              <fieldset class="q-block">
+                <legend>
+                  3) Name one country that looks far away from most other points (an outlier)
                   <span class="required">*</span>
-                </label>
+                </legend>
                 <p class="helper-text">Tip: An outlier is a point that is noticeably separated from the main group of points.</p>
-                <input id="condition-a-position-outlier" type="text" class="text-input" required />
-              </div>
+                <input id="conditionA-outlier" type="text" class="text-input" required />
+              </fieldset>
 
               <fieldset class="q-block">
                 <legend>
-                  3) Where are most countries grouped on the chart?
+                  4) Where are most countries grouped on the chart?
                   <span class="required">*</span>
                 </legend>
                 <p class="helper-text">Tip: A cluster means many points appearing close together in one area.</p>
@@ -192,17 +195,27 @@
                 <label><input type="radio" name="conditionA-cluster" value="Evenly scattered" /> Evenly scattered</label>
               </fieldset>
 
-              <div class="q-block">
-                <label for="condition-a-largest-pop">
-                  4) Name one country you think has the largest population in this chart
+              <fieldset class="q-block">
+                <legend>
+                  5) Do countries with larger populations generally attract more tourists?
                   <span class="required">*</span>
-                </label>
-                <input id="condition-a-largest-pop" type="text" class="text-input" required />
-              </div>
+                </legend>
+                <label><input type="radio" name="conditionA-pop-pattern" value="Yes" required /> Yes</label>
+                <label><input type="radio" name="conditionA-pop-pattern" value="No" /> No</label>
+                <label><input type="radio" name="conditionA-pop-pattern" value="No clear pattern" /> No clear pattern</label>
+              </fieldset>
 
               <fieldset class="q-block">
                 <legend>
-                  5) How easy was it to see overall patterns? (1 = Very Difficult, 5 = Very Easy)
+                  6) Name one country with a small population but high tourism expenditure.
+                  <span class="required">*</span>
+                </legend>
+                <input id="conditionA-small-pop-high-exp" type="text" class="text-input" required />
+              </fieldset>
+
+              <fieldset class="q-block">
+                <legend>
+                  7) How easy was it to see overall patterns? (1 = Very Difficult, 5 = Very Easy)
                   <span class="required">*</span>
                 </legend>
                 <div class="likert-row" role="radiogroup" aria-label="Condition A pattern ease rating">
@@ -216,7 +229,7 @@
 
               <fieldset class="q-block">
                 <legend>
-                  6) How easy was it to find outliers? (1 = Very Difficult, 5 = Very Easy)
+                  8) How easy was it to find outliers? (1 = Very Difficult, 5 = Very Easy)
                   <span class="required">*</span>
                 </legend>
                 <div class="likert-row" role="radiogroup" aria-label="Condition A outlier ease rating">
@@ -230,7 +243,7 @@
 
               <fieldset class="q-block">
                 <legend>
-                  7) How easy was it to compare population differences? (1 = Very Difficult, 5 = Very Easy)
+                  9) How easy was it to compare population differences? (1 = Very Difficult, 5 = Very Easy)
                   <span class="required">*</span>
                 </legend>
                 <div class="likert-row" role="radiogroup" aria-label="Condition A population comparison ease rating">
@@ -241,48 +254,24 @@
                   <label><input type="radio" name="conditionA-population-ease" value="5" /> 5</label>
                 </div>
               </fieldset>
+
+              <div class="q-nav">
+                <button type="button" class="btn btn-primary q-next" data-q-next="2">Next</button>
+              </div>
             </section>
 
-            <section class="q-section" id="section-5">
-              <h2>Section 5: Condition B (Bubble Scatter Plot)</h2>
-              <p class="instruction">Use the <strong>Bubble Scatter Plot</strong> tab to answer these questions.</p>
-
-              <div class="q-block">
-                <label for="condition-b-high-impact">
-                  1) Name one country with low arrivals but high tourism expenditure
-                  <span class="required">*</span>
-                </label>
-                <input id="condition-b-high-impact" type="text" class="text-input" required />
-              </div>
-
-              <div class="q-block">
-                <label for="condition-b-largest-pop">
-                  2) Name one country you think has the largest population in this chart
-                  <span class="required">*</span>
-                </label>
-                <input id="condition-b-largest-pop" type="text" class="text-input" required />
-              </div>
-
+            <section class="q-section q-step" data-q-step="2" id="section-5">
               <fieldset class="q-block">
                 <legend>
-                  3) Did you notice any country where population size and arrivals do not seem to match?
+                  1) Name one country with many tourist arrivals.
                   <span class="required">*</span>
                 </legend>
-                <label><input type="radio" name="conditionB-inconsistency" value="Yes" required /> Yes</label>
-                <label><input type="radio" name="conditionB-inconsistency" value="No" /> No</label>
+                <input id="conditionB-warmup" type="text" class="text-input" placeholder="Type a country name" required />
               </fieldset>
-
-              <div class="q-block">
-                <label for="condition-b-inconsistency-country">
-                  If yes, name the country. If no, type N/A.
-                  <span class="required">*</span>
-                </label>
-                <input id="condition-b-inconsistency-country" type="text" class="text-input" required />
-              </div>
 
               <fieldset class="q-block">
                 <legend>
-                  4) Overall trend: when tourist arrivals increase, tourism expenditure usually...
+                  2) Overall trend: when tourist arrivals increase, tourism expenditure usually...
                   <span class="required">*</span>
                 </legend>
                 <label><input type="radio" name="conditionB-correlation" value="Positive" required /> Also increases (positive)</label>
@@ -292,7 +281,44 @@
 
               <fieldset class="q-block">
                 <legend>
-                  5) How easy was it to see overall patterns? (1 = Very Difficult, 5 = Very Easy)
+                  3) Name one country with low arrivals but high tourism expenditure.
+                  <span class="required">*</span>
+                </legend>
+                <input id="conditionB-low-arrivals-high-exp" type="text" class="text-input" required />
+              </fieldset>
+
+              <fieldset class="q-block">
+                <legend>
+                  4) Do countries with larger populations generally attract more tourists?
+                  <span class="required">*</span>
+                </legend>
+                <label><input type="radio" name="conditionB-pop-pattern" value="Yes" required /> Yes</label>
+                <label><input type="radio" name="conditionB-pop-pattern" value="No" /> No</label>
+                <label><input type="radio" name="conditionB-pop-pattern" value="No clear pattern" /> No clear pattern</label>
+              </fieldset>
+
+              <fieldset class="q-block">
+                <legend>
+                  5) Did you notice any country where population size and arrivals do not seem to match?
+                  <span class="required">*</span>
+                </legend>
+                <label><input type="radio" name="conditionB-inconsistency" value="Yes" required /> Yes</label>
+                <label><input type="radio" name="conditionB-inconsistency" value="No" /> No</label>
+                <label for="conditionB-inconsistency-country" style="margin-top: 6px; font-weight: 600; font-size: 0.84rem;">If yes, name the country. If no, type N/A.</label>
+                <input id="conditionB-inconsistency-country" type="text" class="text-input" placeholder="Type a country name or N/A" required />
+              </fieldset>
+
+              <fieldset class="q-block">
+                <legend>
+                  6) Name one country with a large population but few tourist arrivals.
+                  <span class="required">*</span>
+                </legend>
+                <input id="conditionB-large-pop-low-arrivals" type="text" class="text-input" required />
+              </fieldset>
+
+              <fieldset class="q-block">
+                <legend>
+                  7) How easy was it to see overall patterns? (1 = Very Difficult, 5 = Very Easy)
                   <span class="required">*</span>
                 </legend>
                 <div class="likert-row" role="radiogroup" aria-label="Condition B pattern ease rating">
@@ -306,7 +332,7 @@
 
               <fieldset class="q-block">
                 <legend>
-                  6) How easy was it to find outliers? (1 = Very Difficult, 5 = Very Easy)
+                  8) How easy was it to find outliers? (1 = Very Difficult, 5 = Very Easy)
                   <span class="required">*</span>
                 </legend>
                 <div class="likert-row" role="radiogroup" aria-label="Condition B outlier ease rating">
@@ -320,7 +346,7 @@
 
               <fieldset class="q-block">
                 <legend>
-                  7) How easy was it to compare population differences? (1 = Very Difficult, 5 = Very Easy)
+                  9) How easy was it to compare population differences? (1 = Very Difficult, 5 = Very Easy)
                   <span class="required">*</span>
                 </legend>
                 <div class="likert-row" role="radiogroup" aria-label="Condition B population comparison ease rating">
@@ -331,78 +357,172 @@
                   <label><input type="radio" name="conditionB-population-ease" value="5" /> 5</label>
                 </div>
               </fieldset>
+
+              <div class="q-nav">
+                <button type="button" class="btn btn-primary q-next" data-q-next="3">Next</button>
+              </div>
             </section>
 
-            <section class="q-section" id="section-6">
-              <h2>Section 6: Comparative Judgment</h2>
-
+            <section class="q-section q-step" data-q-step="3" id="section-6">
               <fieldset class="q-block">
                 <legend>
-                  1) Which chart made it easier to identify patterns?
+                  1) Which chart was better for seeing the trend between arrivals and expenditure?
                   <span class="required">*</span>
                 </legend>
-                <label><input type="radio" name="comparison-patterns" value="Standard scatter plot" required /> Standard scatter plot</label>
-                <label><input type="radio" name="comparison-patterns" value="Bubble scatter plot" /> Bubble scatter plot</label>
+                <label><input type="radio" name="comparison-trend" value="Standard scatter plot" required /> Standard scatter plot</label>
+                <label><input type="radio" name="comparison-trend" value="Bubble scatter plot" /> Bubble scatter plot</label>
+                <label><input type="radio" name="comparison-trend" value="No difference" /> No difference</label>
               </fieldset>
 
               <fieldset class="q-block">
                 <legend>
-                  2) Which chart made it easier to identify outliers?
+                  2) Which chart was better for spotting outliers?
                   <span class="required">*</span>
                 </legend>
                 <label><input type="radio" name="comparison-outliers" value="Standard scatter plot" required /> Standard scatter plot</label>
                 <label><input type="radio" name="comparison-outliers" value="Bubble scatter plot" /> Bubble scatter plot</label>
+                <label><input type="radio" name="comparison-outliers" value="No difference" /> No difference</label>
               </fieldset>
 
               <fieldset class="q-block">
                 <legend>
-                  3) Which chart made it easier to compare population differences?
+                  3) Which chart was better for understanding population differences?
                   <span class="required">*</span>
                 </legend>
                 <label><input type="radio" name="comparison-population" value="Standard scatter plot" required /> Standard scatter plot</label>
                 <label><input type="radio" name="comparison-population" value="Bubble scatter plot" /> Bubble scatter plot</label>
+                <label><input type="radio" name="comparison-population" value="No difference" /> No difference</label>
               </fieldset>
 
-              <div class="q-block">
-                <label for="comparison-explanation">
-                  4) Briefly explain your choices (1–2 sentences)
+              <fieldset class="q-block">
+                <legend>
+                  4) Which chart felt more cluttered or harder to read?
                   <span class="required">*</span>
-                </label>
+                </legend>
+                <label><input type="radio" name="comparison-clutter" value="Standard scatter plot" required /> Standard scatter plot</label>
+                <label><input type="radio" name="comparison-clutter" value="Bubble scatter plot" /> Bubble scatter plot</label>
+                <label><input type="radio" name="comparison-clutter" value="No difference" /> No difference</label>
+              </fieldset>
+
+              <fieldset class="q-block">
+                <legend>
+                  5) If you could only use one chart, which would you choose?
+                  <span class="required">*</span>
+                </legend>
+                <label><input type="radio" name="comparison-preference" value="Standard scatter plot" required /> Standard scatter plot</label>
+                <label><input type="radio" name="comparison-preference" value="Bubble scatter plot" /> Bubble scatter plot</label>
+              </fieldset>
+
+              <div class="q-nav">
+                <button type="button" class="btn btn-primary q-next" data-q-next="4">Next</button>
+              </div>
+            </section>
+
+            <section class="q-section q-step" data-q-step="4" id="section-7">
+              <fieldset class="q-block">
+                <legend>
+                  1) Briefly explain your chart preference above. (1–2 sentences)
+                  <span class="required">*</span>
+                </legend>
                 <textarea id="comparison-explanation" class="text-area" rows="3" required></textarea>
-              </div>
-            </section>
+              </fieldset>
 
-            <section class="q-section" id="section-7">
-              <h2>Section 7: Final Question</h2>
-              <div class="q-block">
-                <label for="final-response">
-                  Did you find either visualization confusing? If yes, explain.
+              <fieldset class="q-block">
+                <legend>
+                  2) Was there anything confusing about either visualization? (1–2 sentences)
                   <span class="required">*</span>
-                </label>
-                <input id="final-response" type="text" class="text-input" required />
-              </div>
-            </section>
+                </legend>
+                <textarea id="final-response" class="text-area" rows="3" required></textarea>
+              </fieldset>
 
-            <div class="submit-row">
-              <button type="submit" id="submit-button" class="btn btn-primary" disabled>
-                Submit Responses
-              </button>
+              <div class="q-nav">
+                <button type="submit" id="submit-button" class="btn btn-primary" disabled>
+                  Submit Responses
+                </button>
+              </div>
               <p id="validation-message" class="status-message" aria-live="polite"></p>
-            </div>
+            </section>
           </form>
 
-          <section id="thank-you" class="thank-you" hidden>
-            <h2>Thank you for participating.</h2>
-            <p>Your responses have been recorded.</p>
-          </section>
+          <section id="thank-you" class="thank-you" hidden></section>
         </aside>
       </div>
+      </div><!-- /main-content -->
+
+      <!-- ============ DEBRIEFING PAGE ============ -->
+      <section class="intro-page" id="debrief-page" hidden>
+        <div class="intro-card" style="max-width: 680px; text-align: left;">
+          <h1 style="text-align: center; font-size: 2.2rem; margin-bottom: 4px;">Thank You!</h1>
+          <p class="intro-subtitle" style="text-align: center;">Your responses have been recorded successfully.</p>
+
+          <div class="intro-body">
+            <h2>About This Study</h2>
+            <p>
+              This study compares two types of scatter plot visualizations &mdash;
+              <strong>Standard Scatter Plot</strong> and <strong>Bubble Scatter Plot</strong> &mdash;
+              to understand how each supports pattern recognition, outlier detection,
+              and multi-variable data exploration in tourism data.
+            </p>
+
+            <h2>What We Measured</h2>
+            <ul>
+              <li><strong>Pattern recognition</strong> &mdash; How easily you identified trends between tourist arrivals and expenditure</li>
+              <li><strong>Outlier detection</strong> &mdash; How easily you spotted countries that deviate from the general pattern</li>
+              <li><strong>Population insight</strong> &mdash; How effectively each chart helped you understand the role of population size</li>
+              <li><strong>Perceived difficulty</strong> &mdash; Your self-reported ease of completing each task</li>
+            </ul>
+
+            <h2>What You Should Know</h2>
+            <ul>
+              <li>The first question in each condition was a <strong>warm-up question</strong> designed to help you familiarize yourself with the chart before the main tasks.</li>
+              <li>The <strong>order of conditions</strong> (Standard first vs. Bubble first) was systematically alternated across participants to ensure fairness.</li>
+              <li>The Standard Scatter Plot shows two variables (arrivals &times; expenditure), while the Bubble Scatter Plot adds a third variable (population) encoded as bubble size. Both charts provided population data via tooltips on hover.</li>
+            </ul>
+
+            <h2>Research Question</h2>
+            <p>
+              We are investigating how visualization design influences users&rsquo; ability
+              to identify patterns and outliers in tourism data.
+            </p>
+
+            <p style="margin-top: 20px; color: var(--muted); font-size: 0.9rem;">
+              If you have any questions about this study, please contact the research team.
+              Thank you again for your participation.
+            </p>
+          </div>
+        </div>
+      </section>
     </main>
 
     <div id="tooltip" class="tooltip" aria-hidden="true"></div>
 
+    <!-- ============ TUTORIAL OVERLAY ============ -->
+    <div class="tutorial-overlay" id="tutorial-overlay" hidden>
+      <div class="tutorial-overlay__backdrop"></div>
+
+      <!-- Callout: Chart area -->
+      <div class="tutorial-callout tutorial-callout--chart" id="tutorial-callout-chart">
+        <div class="tutorial-callout__badge">1</div>
+        <p><strong>Visualization Area</strong><br>This is where the chart is displayed. You can scroll to zoom, drag to pan, and hover over points for details.</p>
+      </div>
+
+      <!-- Callout: Legend -->
+      <div class="tutorial-callout tutorial-callout--legend" id="tutorial-callout-legend">
+        <div class="tutorial-callout__badge">2</div>
+        <p><strong>Legend</strong><br>Shows countries by region. Click to filter, or use the search box to find a country.</p>
+      </div>
+
+      <!-- Callout: Questionnaire -->
+      <div class="tutorial-callout tutorial-callout--questionnaire" id="tutorial-callout-questionnaire">
+        <div class="tutorial-callout__badge">3</div>
+        <p><strong>Questions</strong><br>Answer each question based on the chart. Use the Next button to proceed.</p>
+      </div>
+
+      <button type="button" class="btn btn-primary tutorial-confirm" id="tutorial-confirm">Got it</button>
+    </div>
+
     <footer>
-      <p>Ephraim Teodoro & Hyun Kim.<br>2026 All rights reserved.</p>
+      <p>Ephraim Teodoro & Hyun Kim. 2026 All rights reserved.</p>
     </footer>
   </body>
 </html>
