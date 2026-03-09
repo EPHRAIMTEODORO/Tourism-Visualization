@@ -13,7 +13,7 @@ const formatPopulation = (value) => `${d3.format(".2f")(value)}M`;
 
 // Application state
 const appState = {
-  activeTab: 'standard',
+  activeChart: 'standard',
   searchFilters: {
     standard: '',
     bubble: ''
@@ -26,41 +26,18 @@ const appState = {
 };
 
 /**
- * Initialize tab navigation
+ * Switch active chart panel (called by questionnaire step navigation)
  */
-function initTabs() {
-  const tabButtons = document.querySelectorAll('.tab-nav__button');
+function switchChartPanel(chartType) {
+  if (appState.activeChart === chartType) return;
+  appState.activeChart = chartType;
 
-  tabButtons.forEach(button => {
-    button.addEventListener('click', (e) => {
-      const chartType = e.currentTarget.dataset.chart;
-      switchTab(chartType);
-    });
-  });
-}
-
-/**
- * Switch between tabs
- */
-function switchTab(chartType) {
-  if (appState.activeTab === chartType) return;
-
-  appState.activeTab = chartType;
-
-  // Update tab buttons
-  document.querySelectorAll('.tab-nav__button').forEach(btn => {
-    const isActive = btn.dataset.chart === chartType;
-    btn.classList.toggle('tab-nav__button--active', isActive);
-    btn.setAttribute('aria-selected', isActive);
-  });
-
-  // Update tab panels
-  document.querySelectorAll('.tab-panel').forEach(panel => {
+  document.querySelectorAll('.chart-panel').forEach(panel => {
     const isActive = panel.id === `${chartType}-scatter-panel`;
-    panel.classList.toggle('tab-panel--active', isActive);
+    panel.classList.toggle('chart-panel--active', isActive);
   });
 
-  // Re-render the active chart (for proper sizing)
+  // Re-render for proper sizing
   setTimeout(() => {
     renderCharts(appState.dataset);
   }, 50);
@@ -213,7 +190,7 @@ function updateCountrySelection(chartType) {
 // Chart configuration - height will be calculated dynamically based on container width
 const chartConfig = {
   height: null, // Calculated dynamically
-  margin: { top: 20, right: 24, bottom: 60, left: 68 }
+  margin: { top: 12, right: 24, bottom: 50, left: 76 }
 };
 
 const tooltip = d3.select("#tooltip");
@@ -306,9 +283,9 @@ function createScatterPlot({
   const container = d3.select(elementId);
   container.selectAll("*").remove();
 
-  // Only render if the parent tab panel is active
-  const parentPanel = container.node().closest('.tab-panel');
-  if (!parentPanel || !parentPanel.classList.contains('tab-panel--active')) {
+  // Only render if the parent chart panel is active
+  const parentPanel = container.node().closest('.chart-panel');
+  if (!parentPanel || !parentPanel.classList.contains('chart-panel--active')) {
     return;
   }
 
@@ -338,7 +315,7 @@ function createScatterPlot({
 
   // Create zoom behavior
   const zoom = d3.zoom()
-    .scaleExtent([1, 30])
+    .scaleExtent([1, 100])
     .extent([[0, 0], [innerWidth, innerHeight]])
     .translateExtent([[0, 0], [innerWidth, innerHeight]])
     .on("zoom", zoomed);
@@ -377,7 +354,7 @@ function createScatterPlot({
     .append("text")
     .attr("class", "axis-label")
     .attr("x", innerWidth / 2)
-    .attr("y", innerHeight + 40)
+    .attr("y", innerHeight + 38)
     .attr("text-anchor", "middle")
     .attr("fill", "#5f6b7a")
     .text("Tourist Arrivals (millions)");
@@ -387,7 +364,7 @@ function createScatterPlot({
     .attr("class", "axis-label")
     .attr("transform", "rotate(-90)")
     .attr("x", -innerHeight / 2)
-    .attr("y", -48)
+    .attr("y", -54)
     .attr("text-anchor", "middle")
     .attr("fill", "#5f6b7a")
     .text("Tourism Expenditure (USD, billions)");
@@ -564,7 +541,7 @@ function renderCharts(data) {
     .range(d3.schemeTableau10);
 
   // Calculate width and height based on active chart container
-  const activePanel = document.querySelector('.tab-panel--active');
+  const activePanel = document.querySelector('.chart-panel--active');
   const chartContainer = activePanel?.querySelector('.chart-main');
   const sharedWidth = chartContainer?.getBoundingClientRect().width || 600;
   const sharedHeight = Math.min(sharedWidth * 0.8, 800); // Responsive height
@@ -645,7 +622,7 @@ function syncQuestionnaireHeight() {
     return;
   }
 
-  const activePanel = document.querySelector('.tab-panel--active');
+  const activePanel = document.querySelector('.chart-panel--active');
   const chartLayout = activePanel?.querySelector('.chart-layout');
   const chartTopOffset = chartLayout && visualizationArea
     ? chartLayout.getBoundingClientRect().top - visualizationArea.getBoundingClientRect().top
@@ -711,12 +688,22 @@ Promise.all([d3.text(CSV_PATH), d3.text(POP_CSV_PATH)])
 
     appState.dataset = filteredDataset;
 
-    // Initialize tabs and search
-    initTabs();
+    // Initialize search
     initSearch();
 
-    // Render charts
-    renderCharts(filteredDataset);
+    // Defer chart rendering until main-content is visible
+    const mainContent = document.getElementById("main-content");
+    if (mainContent && mainContent.hidden) {
+      const observer = new MutationObserver(() => {
+        if (!mainContent.hidden) {
+          observer.disconnect();
+          setTimeout(() => renderCharts(filteredDataset), 50);
+        }
+      });
+      observer.observe(mainContent, { attributes: true, attributeFilter: ["hidden"] });
+    } else {
+      renderCharts(filteredDataset);
+    }
 
     // Handle window resize with debouncing for better performance
     let resizeTimeout;

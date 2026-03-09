@@ -77,15 +77,212 @@ window.addEventListener("DOMContentLoaded", () => {
   const validationMessage = document.getElementById("validation-message");
   const thankYou = document.getElementById("thank-you");
 
-  const practiceContinue = document.getElementById("practice-continue");
-  const practiceResponse = document.getElementById("practice-response");
-  const practiceFeedback = document.getElementById("practice-feedback");
-
   if (!form || !submitButton) {
     return;
   }
 
-  applyConditionOrder(form);
+  // Intro → Demographics → Main Content
+  const introPage = document.getElementById("intro-page");
+  const demographicsPage = document.getElementById("demographics-page");
+  const mainContent = document.getElementById("main-content");
+  const introBegin = document.getElementById("intro-begin");
+  const demographicsNext = document.getElementById("demographics-next");
+  const demographicsForm = document.getElementById("demographics-form");
+  const demographicsMessage = document.getElementById("demographics-message");
+
+  const progressBar = document.getElementById("q-progress");
+  const progressFill = document.getElementById("q-progress-fill");
+  const progressLabel = document.getElementById("q-progress-label");
+  const TOTAL_STEPS = 5; // demographics(1) + 4 questionnaire steps
+
+  function updateProgress(stepNum) {
+    if (progressFill) progressFill.style.width = `${(stepNum / TOTAL_STEPS) * 100}%`;
+    if (progressLabel) progressLabel.textContent = `Step ${stepNum} / ${TOTAL_STEPS}`;
+  }
+
+  if (introBegin) {
+    introBegin.addEventListener("click", () => {
+      introPage.hidden = true;
+      demographicsPage.hidden = false;
+      if (progressBar) progressBar.hidden = false;
+      updateProgress(1);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  }
+
+  // Enable Next button when all demographics fields are filled
+  if (demographicsForm && demographicsNext) {
+    const demoFields = [...demographicsForm.querySelectorAll("[required]")];
+
+    const updateDemoState = () => {
+      const complete = demoFields.every(f => isFieldComplete(demographicsForm, f));
+      demographicsNext.disabled = !complete;
+      if (complete) demographicsMessage.textContent = "";
+    };
+
+    demographicsForm.addEventListener("input", updateDemoState);
+    demographicsForm.addEventListener("change", updateDemoState);
+
+    demographicsNext.addEventListener("click", async () => {
+      const complete = demoFields.every(f => isFieldComplete(demographicsForm, f));
+      if (!complete) {
+        demographicsMessage.textContent = "Please answer all questions.";
+        return;
+      }
+
+      demographicsNext.disabled = true;
+      demographicsMessage.textContent = "Loading...";
+
+      try {
+        // Register participant and get condition order
+        const res = await fetch("/api/register", { method: "POST" });
+        if (!res.ok) throw new Error("Registration failed");
+        const { participantId, conditionOrder } = await res.json();
+
+        // Store for submission
+        sessionStorage.setItem("participantId", String(participantId));
+        sessionStorage.setItem("conditionOrder", conditionOrder);
+
+        // Apply condition order based on ID
+        const section4 = document.getElementById("section-4");
+        const section5 = document.getElementById("section-5");
+
+        if (conditionOrder === "bubble-first" && section4 && section5) {
+          // Swap step numbers
+          section4.dataset.qStep = "2";
+          section5.dataset.qStep = "1";
+          // Swap active class
+          section4.classList.remove("q-step--active");
+          section5.classList.add("q-step--active");
+          // Reorder DOM
+          sessionStorage.setItem(CONDITION_ORDER_KEY, JSON.stringify(["section-5", "section-4"]));
+          applyConditionOrder(form);
+        } else {
+          sessionStorage.setItem(CONDITION_ORDER_KEY, JSON.stringify(["section-4", "section-5"]));
+          applyConditionOrder(form);
+        }
+
+      } catch (error) {
+        console.error("Registration error:", error);
+        // Fallback to random order
+        sessionStorage.removeItem("participantId");
+        sessionStorage.removeItem("conditionOrder");
+      }
+
+      demographicsMessage.textContent = "";
+      demographicsPage.hidden = true;
+      mainContent.hidden = false;
+      updateProgress(2);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+
+      // Switch chart panel if bubble-first
+      const order = sessionStorage.getItem("conditionOrder");
+      if (order === "bubble-first" && typeof switchChartPanel === "function") {
+        switchChartPanel("bubble");
+      }
+
+      // Show tutorial overlay
+      const tutorialOverlay = document.getElementById("tutorial-overlay");
+      if (tutorialOverlay) tutorialOverlay.hidden = false;
+    });
+  }
+
+  // Tutorial dismiss
+  const tutorialConfirm = document.getElementById("tutorial-confirm");
+  if (tutorialConfirm) {
+    tutorialConfirm.addEventListener("click", () => {
+      const tutorialOverlay = document.getElementById("tutorial-overlay");
+      if (tutorialOverlay) tutorialOverlay.hidden = true;
+    });
+  }
+
+  // Map section IDs to which chart panel to show
+  const sectionChartMap = {
+    "section-4": "standard",  // Condition A → Standard Scatter
+    "section-5": "bubble"     // Condition B → Bubble Scatter
+  };
+
+  // Questionnaire step navigation
+  function goToQStep(stepNum) {
+    document.querySelectorAll('.q-step').forEach(el => {
+      el.classList.remove('q-step--active');
+    });
+    const target = document.querySelector(`.q-step[data-q-step="${stepNum}"]`);
+    if (target) {
+      target.classList.add('q-step--active');
+      // Scroll questionnaire area to top
+      const qArea = document.querySelector('.questionnaire-area');
+      if (qArea) qArea.scrollTop = 0;
+
+      updateProgress(stepNum + 1); // +1 because demographics is step 1
+
+      // Auto-switch chart panel based on active section
+      const sectionId = target.id;
+      const chartType = sectionChartMap[sectionId];
+      if (chartType && typeof switchChartPanel === "function") {
+        switchChartPanel(chartType);
+      }
+    }
+  }
+
+  function validateCurrentStep(stepEl) {
+    // Clear previous highlights
+    stepEl.querySelectorAll('.q-block--incomplete').forEach(el => el.classList.remove('q-block--incomplete'));
+    stepEl.querySelectorAll('.q-incomplete-msg').forEach(el => el.remove());
+
+    const blocks = stepEl.querySelectorAll('.q-block');
+    let allComplete = true;
+
+    blocks.forEach(block => {
+      const required = [...block.querySelectorAll('[required]')];
+      if (required.length === 0) return;
+
+      const complete = required.every(f => isFieldComplete(stepEl, f));
+      if (!complete) {
+        block.classList.add('q-block--incomplete');
+        if (!block.querySelector('.q-incomplete-msg')) {
+          const msg = document.createElement('p');
+          msg.className = 'q-incomplete-msg';
+          msg.textContent = 'Please answer this question.';
+          block.appendChild(msg);
+        }
+        allComplete = false;
+      }
+    });
+
+    return allComplete;
+  }
+
+  // Clear highlights on input
+  form.addEventListener('input', (e) => {
+    const block = e.target.closest('.q-block');
+    if (block) {
+      block.classList.remove('q-block--incomplete');
+      const msg = block.querySelector('.q-incomplete-msg');
+      if (msg) msg.remove();
+    }
+  });
+  form.addEventListener('change', (e) => {
+    const block = e.target.closest('.q-block');
+    if (block) {
+      block.classList.remove('q-block--incomplete');
+      const msg = block.querySelector('.q-incomplete-msg');
+      if (msg) msg.remove();
+    }
+  });
+
+  document.querySelectorAll('.q-next').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const currentStep = btn.closest('.q-step');
+      if (!validateCurrentStep(currentStep)) {
+        // Scroll to first incomplete
+        const first = currentStep.querySelector('.q-block--incomplete');
+        if (first) first.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+      goToQStep(Number(btn.dataset.qNext));
+    });
+  });
 
   const requiredFields = [...form.querySelectorAll("[required]")];
 
@@ -97,15 +294,6 @@ window.addEventListener("DOMContentLoaded", () => {
       validationMessage.textContent = "";
     }
   };
-
-  practiceContinue?.addEventListener("click", () => {
-    if (!practiceResponse || !practiceResponse.value.trim()) {
-      practiceFeedback.textContent = "Please enter a country to complete the practice trial.";
-      return;
-    }
-
-    practiceFeedback.textContent = "Practice complete. This answer is not recorded.";
-  });
 
   form.addEventListener("input", updateSubmitState);
   form.addEventListener("change", updateSubmitState);
@@ -121,38 +309,47 @@ window.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
+    const dForm = demographicsForm || form;
     const responses = {
       demographics: {
-        age: getRadioValue(form, "age"),
-        major: getRadioValue(form, "major"),
-        takenCourse: parseYesNoToBoolean(getRadioValue(form, "course"))
+        age: getRadioValue(dForm, "age"),
+        major: getRadioValue(dForm, "major"),
+        takenCourse: parseYesNoToBoolean(getRadioValue(dForm, "course"))
       },
       conditionA: {
+        warmup: getTextValue("conditionA-warmup"),
         correlationDirection: getRadioValue(form, "conditionA-correlation"),
-        outlierCountry: getTextValue("condition-a-position-outlier"),
+        outlierCountry: getTextValue("conditionA-outlier"),
         clusterLocation: getRadioValue(form, "conditionA-cluster"),
-        largestPopulation: getTextValue("condition-a-largest-pop"),
+        populationPattern: getRadioValue(form, "conditionA-pop-pattern"),
+        smallPopHighExp: getTextValue("conditionA-small-pop-high-exp"),
         patternEase: Number(getRadioValue(form, "conditionA-pattern-ease")),
         outlierEase: Number(getRadioValue(form, "conditionA-outlier-ease")),
         populationEase: Number(getRadioValue(form, "conditionA-population-ease"))
       },
       conditionB: {
-        highImpactCountry: getTextValue("condition-b-high-impact"),
-        largestPopulation: getTextValue("condition-b-largest-pop"),
-        populationInconsistency: parseYesNoToBoolean(getRadioValue(form, "conditionB-inconsistency")),
-        inconsistentCountry: getTextValue("condition-b-inconsistency-country"),
+        warmup: getTextValue("conditionB-warmup"),
         correlationDirection: getRadioValue(form, "conditionB-correlation"),
+        lowArrivalsHighExp: getTextValue("conditionB-low-arrivals-high-exp"),
+        populationPattern: getRadioValue(form, "conditionB-pop-pattern"),
+        populationInconsistency: parseYesNoToBoolean(getRadioValue(form, "conditionB-inconsistency")),
+        inconsistentCountry: getTextValue("conditionB-inconsistency-country"),
+        largePopLowArrivals: getTextValue("conditionB-large-pop-low-arrivals"),
         patternEase: Number(getRadioValue(form, "conditionB-pattern-ease")),
         outlierEase: Number(getRadioValue(form, "conditionB-outlier-ease")),
         populationEase: Number(getRadioValue(form, "conditionB-population-ease"))
       },
       comparison: {
-        easierPattern: getRadioValue(form, "comparison-patterns"),
-        easierOutlier: getRadioValue(form, "comparison-outliers"),
-        easierPopulation: getRadioValue(form, "comparison-population"),
+        trend: getRadioValue(form, "comparison-trend"),
+        outliers: getRadioValue(form, "comparison-outliers"),
+        population: getRadioValue(form, "comparison-population"),
+        clutter: getRadioValue(form, "comparison-clutter"),
+        preference: getRadioValue(form, "comparison-preference"),
         explanation: getTextValue("comparison-explanation")
       },
       finalComment: getTextValue("final-response"),
+      participantId: Number(sessionStorage.getItem("participantId")) || null,
+      conditionOrder: sessionStorage.getItem("conditionOrder") || "unknown",
       timestamp: new Date().toISOString()
     };
 
@@ -174,10 +371,16 @@ window.addEventListener("DOMContentLoaded", () => {
 
       console.log("Participant responses:", responses);
 
-      form.hidden = true;
-      if (thankYou) {
-        thankYou.hidden = false;
-        thankYou.scrollIntoView({ behavior: "smooth", block: "start" });
+      // Hide everything and show debrief page
+      const mainContent = document.getElementById("main-content");
+      const progressBar = document.getElementById("q-progress");
+      const debriefPage = document.getElementById("debrief-page");
+
+      if (mainContent) mainContent.hidden = true;
+      if (progressBar) progressBar.hidden = true;
+      if (debriefPage) {
+        debriefPage.hidden = false;
+        window.scrollTo({ top: 0, behavior: "smooth" });
       }
     } catch (error) {
       console.error("Submission failed:", error);

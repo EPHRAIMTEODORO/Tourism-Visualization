@@ -93,17 +93,23 @@ function validatePayload(payload) {
   const missingTextFields = [
     ["demographics.age", demographics.age],
     ["demographics.major", demographics.major],
+    ["conditionA.warmup", conditionA.warmup],
     ["conditionA.correlationDirection", conditionA.correlationDirection],
     ["conditionA.outlierCountry", conditionA.outlierCountry],
     ["conditionA.clusterLocation", conditionA.clusterLocation],
-    ["conditionA.largestPopulation", conditionA.largestPopulation],
-    ["conditionB.highImpactCountry", conditionB.highImpactCountry],
-    ["conditionB.largestPopulation", conditionB.largestPopulation],
-    ["conditionB.inconsistentCountry", conditionB.inconsistentCountry],
+    ["conditionA.populationPattern", conditionA.populationPattern],
+    ["conditionA.smallPopHighExp", conditionA.smallPopHighExp],
+    ["conditionB.warmup", conditionB.warmup],
     ["conditionB.correlationDirection", conditionB.correlationDirection],
-    ["comparison.easierPattern", comparison.easierPattern],
-    ["comparison.easierOutlier", comparison.easierOutlier],
-    ["comparison.easierPopulation", comparison.easierPopulation],
+    ["conditionB.lowArrivalsHighExp", conditionB.lowArrivalsHighExp],
+    ["conditionB.populationPattern", conditionB.populationPattern],
+    ["conditionB.inconsistentCountry", conditionB.inconsistentCountry],
+    ["conditionB.largePopLowArrivals", conditionB.largePopLowArrivals],
+    ["comparison.trend", comparison.trend],
+    ["comparison.outliers", comparison.outliers],
+    ["comparison.population", comparison.population],
+    ["comparison.clutter", comparison.clutter],
+    ["comparison.preference", comparison.preference],
     ["comparison.explanation", comparison.explanation],
     ["finalComment", payload.finalComment]
   ].filter(([, value]) => !hasText(value));
@@ -140,28 +146,34 @@ function validatePayload(payload) {
         takenCourse
       },
       conditionA: {
+        warmup: normalizeText(conditionA.warmup),
         correlationDirection: normalizeText(conditionA.correlationDirection),
         outlierCountry: normalizeText(conditionA.outlierCountry),
         clusterLocation: normalizeText(conditionA.clusterLocation),
-        largestPopulation: normalizeText(conditionA.largestPopulation),
+        populationPattern: normalizeText(conditionA.populationPattern),
+        smallPopHighExp: normalizeText(conditionA.smallPopHighExp),
         patternEase: aPatternEase,
         outlierEase: aOutlierEase,
         populationEase: aPopulationEase
       },
       conditionB: {
-        highImpactCountry: normalizeText(conditionB.highImpactCountry),
-        largestPopulation: normalizeText(conditionB.largestPopulation),
+        warmup: normalizeText(conditionB.warmup),
+        correlationDirection: normalizeText(conditionB.correlationDirection),
+        lowArrivalsHighExp: normalizeText(conditionB.lowArrivalsHighExp),
+        populationPattern: normalizeText(conditionB.populationPattern),
         populationInconsistency,
         inconsistentCountry: normalizeText(conditionB.inconsistentCountry),
-        correlationDirection: normalizeText(conditionB.correlationDirection),
+        largePopLowArrivals: normalizeText(conditionB.largePopLowArrivals),
         patternEase: bPatternEase,
         outlierEase: bOutlierEase,
         populationEase: bPopulationEase
       },
       comparison: {
-        easierPattern: normalizeText(comparison.easierPattern),
-        easierOutlier: normalizeText(comparison.easierOutlier),
-        easierPopulation: normalizeText(comparison.easierPopulation),
+        trend: normalizeText(comparison.trend),
+        outliers: normalizeText(comparison.outliers),
+        population: normalizeText(comparison.population),
+        clutter: normalizeText(comparison.clutter),
+        preference: normalizeText(comparison.preference),
         explanation: normalizeText(comparison.explanation)
       },
       finalComment: normalizeText(payload.finalComment),
@@ -199,7 +211,25 @@ async function ensureSchema() {
 
         condition_b_pattern_ease SMALLINT NOT NULL CHECK (condition_b_pattern_ease BETWEEN 1 AND 5),
         condition_b_outlier_ease SMALLINT NOT NULL CHECK (condition_b_outlier_ease BETWEEN 1 AND 5),
-        condition_b_population_ease SMALLINT NOT NULL CHECK (condition_b_population_ease BETWEEN 1 AND 5)
+        condition_b_population_ease SMALLINT NOT NULL CHECK (condition_b_population_ease BETWEEN 1 AND 5),
+
+        participant_id BIGINT,
+        condition_order TEXT
+      );
+    `);
+
+    // Add columns if table already exists without them
+    await db.query(`
+      ALTER TABLE questionnaire_responses
+        ADD COLUMN IF NOT EXISTS participant_id BIGINT,
+        ADD COLUMN IF NOT EXISTS condition_order TEXT;
+    `);
+
+    // Participant counter table
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS participant_counter (
+        id BIGSERIAL PRIMARY KEY,
+        registered_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
       );
     `);
 

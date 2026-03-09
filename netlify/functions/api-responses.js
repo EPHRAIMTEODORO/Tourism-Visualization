@@ -58,7 +58,9 @@ exports.handler = async (event) => {
         condition_a_population_ease,
         condition_b_pattern_ease,
         condition_b_outlier_ease,
-        condition_b_population_ease
+        condition_b_population_ease,
+        participant_id,
+        condition_order
       )
       VALUES (
         $1::timestamptz,
@@ -75,7 +77,9 @@ exports.handler = async (event) => {
         $12,
         $13,
         $14,
-        $15
+        $15,
+        $16,
+        $17
       )
       `,
       [
@@ -93,7 +97,9 @@ exports.handler = async (event) => {
         data.conditionA.populationEase,
         data.conditionB.patternEase,
         data.conditionB.outlierEase,
-        data.conditionB.populationEase
+        data.conditionB.populationEase,
+        payload.participantId || null,
+        payload.conditionOrder || "unknown"
       ]
     );
 
