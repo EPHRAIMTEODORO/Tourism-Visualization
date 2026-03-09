@@ -20,6 +20,16 @@ exports.handler = async (event) => {
     await ensureSchema();
     const db = getPool();
 
+    const { token } = JSON.parse(event.body || "{}");
+
+    // Mark token as used
+    if (token) {
+      await db.query(
+        `UPDATE tokens SET used = TRUE, used_at = NOW() WHERE token = $1 AND used = FALSE`,
+        [token.trim().toUpperCase()]
+      );
+    }
+
     const result = await db.query(
       `INSERT INTO participant_counter DEFAULT VALUES RETURNING id`
     );

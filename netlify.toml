@@ -19,3 +19,13 @@
   from = "/api/responses/summary"
   to = "/.netlify/functions/api-responses-summary"
   status = 200
+
+[[redirects]]
+  from = "/api/tokens"
+  to = "/.netlify/functions/api-tokens"
+  status = 200
+
+[[redirects]]
+  from = "/api/validate-token"
+  to = "/.netlify/functions/api-validate-token"
+  status = 200
