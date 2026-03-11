@@ -202,6 +202,11 @@ window.addEventListener("DOMContentLoaded", () => {
           // Swap step numbers
           section4.dataset.qStep = "2";
           section5.dataset.qStep = "1";
+          // Swap Next-button targets so the flow is step 1→2→3
+          const btn4 = section4.querySelector(".q-next");
+          const btn5 = section5.querySelector(".q-next");
+          if (btn4) btn4.dataset.qNext = "3";
+          if (btn5) btn5.dataset.qNext = "2";
           // Swap active class
           section4.classList.remove("q-step--active");
           section5.classList.add("q-step--active");
