@@ -100,10 +100,10 @@ window.addEventListener("DOMContentLoaded", () => {
     if (progressLabel) progressLabel.textContent = `Step ${stepNum} / ${TOTAL_STEPS}`;
   }
 
-  // Token validation
+  // Token validation (disabled — users can proceed without a token)
   const tokenInput = document.getElementById("token-input");
   const tokenError = document.getElementById("token-error");
-  let tokenValidated = false;
+  let tokenValidated = true;
 
   if (tokenInput) {
     tokenInput.addEventListener("input", () => {
@@ -147,7 +147,6 @@ window.addEventListener("DOMContentLoaded", () => {
 
   if (introBegin) {
     introBegin.addEventListener("click", () => {
-      if (!tokenValidated) return;
       introPage.hidden = true;
       demographicsPage.hidden = false;
       if (progressBar) progressBar.hidden = false;
