@@ -1,108 +1,163 @@
 # Tourism Visualization
 
-Research demo comparing a standard scatter plot with a bubble scatter plot for tourism analysis using D3.js.
+An academic research project that uses interactive D3.js visualizations to study how different chart types affect the readability of tourism data. Participants complete a structured questionnaire after viewing both a standard scatter plot and a bubble scatter plot, rating how easy each was to interpret across three tasks. Responses are stored in a Neon Postgres database via Netlify Functions, and a live results page performs full statistical analysis on the collected data.
+
+---
+
+## Purpose
+
+This project is a within-subjects usability study comparing two chart types:
+
+- **Standard Scatter Plot** — tourist arrivals vs. expenditure, one point per country
+- **Bubble Scatter Plot** — same data with bubble size encoding a third variable (population)
+
+Participants rate each chart on three ease dimensions (1 = very difficult, 5 = very easy):
+
+| Dimension | What it measures |
+|---|---|
+| Pattern Recognition | How easily overall trends are spotted |
+| Outlier Detection | How easily unusual data points are identified |
+| Population Pattern | How easily population size differences are interpreted |
+
+The study uses a counterbalanced order to control for learning effects.
+
+---
 
 ## Features
-- Side-by-side scatter and bubble charts with shared axes for direct comparison
-- Bubble size mapped to tourism expenditure
-- Tooltip with country name, arrivals, expenditure, and year
-- Per-country color legend
-- Responsive layout with Flexbox and SVG viewBox scaling
 
-## Data
-The data is loaded from:
-- data/Tourist-VisitorsArrivalandExpenditure.csv
+### Main Visualization (`/`)
+- Side-by-side standard scatter plot and bubble scatter plot with shared axes
+- Bubble size mapped to tourist expenditure
+- Per-country color legend with interactive tooltips (country, arrivals, expenditure, year)
+- Responsive SVG layout using Flexbox and `viewBox` scaling
+- Data sourced from UN tourism CSV (`data/Tourist-VisitorsArrivalandExpenditure.csv`)
 
-The CSV contains a metadata header in the first line, followed by the column header row.
-Expected columns (names in the file):
-- Region/Country/Area
-- Year
-- Series
-- Value
+### Questionnaire (`/`)
+- Multi-step survey flow embedded alongside the visualizations
+- Collects demographics (age group, field of study, prior data vis experience)
+- Records Likert-scale ease ratings per condition
+- Token-gated submission to prevent duplicate responses
+- Submits to Neon Postgres via a Netlify serverless function
 
-Series values used by the visualization:
-- Tourist/visitor arrivals (thousands)
-- Tourism expenditure (millions of US dollars)
+### Results Page (`/results/`)
+- Fetches live data from the database on every page load — no hardcoded values
+- **Boxplots** — distribution of ease ratings per condition for all three categories
+- **Statistical Analysis** section:
+  - Descriptive statistics (mean and median per condition per category)
+  - Shapiro-Wilk normality test on paired differences (Royston AS R94 algorithm)
+  - Conditional hypothesis testing — paired t-test if normal, Wilcoxon signed-rank if not
+  - p-values highlighted visually (red badge = significant, green = not significant)
+  - Auto-generated human-readable summary conclusions
+  - D3 grouped bar chart comparing mean scores across conditions and categories
 
-Processing notes:
-- Arrivals are converted from thousands to absolute counts.
-- Expenditure is converted from millions of USD to absolute USD.
-- For each country, the latest year with both arrivals and expenditure is used.
+### Admin (`/admin/`)
+- Internal view of collected responses
 
-## How to run (Netlify + Neon)
-This project uses a Netlify Function to store questionnaire responses in Neon Postgres.
+---
 
-1. Install dependencies:
+## Project Structure
+
+```
+index.html                        # Main visualization + questionnaire
+css/styles.css                    # Styles for main page
+js/script.js                      # D3 scatter and bubble chart rendering
+js/questionnaire.js               # Multi-step questionnaire logic
+data/
+  Tourist-VisitorsArrivalandExpenditure.csv
+  population.csv
+results/
+  index.html                      # Results page (structure only)
+  results.css                     # Results page styles
+  results.js                      # Boxplots + statistical analysis rendering
+  stats/
+    utils.js                      # normalCDF, normalQuantile, betainc, lgamma
+    mean.js
+    median.js
+    shapiroWilk.js                # Royston (1992/1995) AS R94
+    pairedTTest.js                # Exact p-value via incomplete beta function
+    wilcoxonSignedRank.js         # Normal approximation with tie correction
+netlify/
+  functions/
+    _responses-store.js           # Shared DB pool + validation utilities
+    api-register.js               # POST /api/register
+    api-responses.js              # GET /api/responses
+    api-responses-summary.js      # GET /api/responses-summary
+    api-tokens.js                 # GET /api/tokens
+    api-validate-token.js         # POST /api/validate-token
+    submit-response.js            # POST /api/submit-response
+admin/
+  index.html
+netlify.toml
+```
+
+---
+
+## Running Locally
+
+1. **Install dependencies:**
 
 ```bash
 npm install
 ```
 
-2. Create a `.env` file from `.env.example` and set your Neon connection string:
+2. **Set up your environment:**
+
+Create a `.env` file in the project root:
 
 ```bash
-cp .env.example .env
+DATABASE_URL=postgresql://<user>:<password>@<host>/<db>?sslmode=require
 ```
 
-3. In Neon SQL editor, create the table and analysis view:
-
-```sql
-CREATE TABLE IF NOT EXISTS participant_responses (
-	id BIGSERIAL PRIMARY KEY,
-	submitted_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-	demographics JSONB NOT NULL,
-	condition_a JSONB NOT NULL,
-	condition_b JSONB NOT NULL,
-	comparison JSONB NOT NULL,
-	final JSONB NOT NULL,
-	raw_response JSONB,
-	age_group TEXT,
-	major_group TEXT,
-	took_course BOOLEAN,
-	condition_a_ease SMALLINT CHECK (condition_a_ease BETWEEN 1 AND 5),
-	condition_b_ease SMALLINT CHECK (condition_b_ease BETWEEN 1 AND 5),
-	easier_visualization TEXT
-);
-
-CREATE OR REPLACE VIEW participant_ease_scores AS
-SELECT id, submitted_at, 'A'::text AS condition, condition_a_ease AS ease_score
-FROM participant_responses
-WHERE condition_a_ease IS NOT NULL
-UNION ALL
-SELECT id, submitted_at, 'B'::text AS condition, condition_b_ease AS ease_score
-FROM participant_responses
-WHERE condition_b_ease IS NOT NULL;
-```
-
-4. Run locally with Netlify:
+3. **Start the dev server:**
 
 ```bash
 npm start
 ```
 
-Then open the local URL shown by Netlify CLI (usually `http://localhost:8888`).
+Then open **http://localhost:8888** in your browser.
 
-## Deploy to Netlify
-- Push this repo to GitHub.
-- Create a Netlify site from the repo.
-- In Netlify site settings, add environment variable `DATABASE_URL`.
-- Deploy.
+- Main visualization: `http://localhost:8888/`
+- Results page: `http://localhost:8888/results/`
+- Admin: `http://localhost:8888/admin/`
 
-The frontend will submit responses to:
-- `/.netlify/functions/submit-response`
+The Netlify CLI handles both static file serving and serverless function routing automatically.
 
-Box-plot-friendly view:
-- `participant_ease_scores`
+---
 
-## Project structure
-- index.html
-- css/styles.css
-- js/script.js
-- js/questionnaire.js
-- data/Tourist-VisitorsArrivalandExpenditure.csv
-- netlify/functions/submit-response.js
-- netlify.toml
+## Database Setup (Neon Postgres)
 
-## Notes
-- D3.js v7 is loaded via the CDN in index.html.
-- If you add or replace the CSV, ensure the first metadata line is present or update the parser in js/script.js.
+Run this in the Neon SQL editor to create the required table:
+
+```sql
+CREATE TABLE IF NOT EXISTS questionnaire_responses (
+  id                          BIGSERIAL PRIMARY KEY,
+  submitted_at                TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  participant_id              TEXT NOT NULL UNIQUE,
+  condition_a_pattern_ease    SMALLINT CHECK (condition_a_pattern_ease BETWEEN 1 AND 5),
+  condition_a_outlier_ease    SMALLINT CHECK (condition_a_outlier_ease BETWEEN 1 AND 5),
+  condition_a_population_ease SMALLINT CHECK (condition_a_population_ease BETWEEN 1 AND 5),
+  condition_b_pattern_ease    SMALLINT CHECK (condition_b_pattern_ease BETWEEN 1 AND 5),
+  condition_b_outlier_ease    SMALLINT CHECK (condition_b_outlier_ease BETWEEN 1 AND 5),
+  condition_b_population_ease SMALLINT CHECK (condition_b_population_ease BETWEEN 1 AND 5)
+);
+```
+
+---
+
+## Deploying to Netlify
+
+1. Push the repo to GitHub.
+2. Create a new Netlify site linked to the repo.
+3. In **Site settings → Environment variables**, add `DATABASE_URL`.
+4. Deploy — Netlify builds and serves everything automatically.
+
+---
+
+## Data Notes
+
+- CSV source: UN tourism statistics
+- First line of the CSV is a metadata header; the parser skips it
+- Arrivals are stored in thousands and converted to absolute counts at render time
+- Expenditure is stored in millions of USD and converted to absolute USD at render time
+- For each country, the latest year with both arrivals and expenditure present is used
+- D3.js v7 is loaded via CDN in all HTML files

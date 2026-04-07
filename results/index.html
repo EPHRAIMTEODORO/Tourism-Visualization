@@ -4,124 +4,30 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Study Results – Ease Ratings</title>
+    <!-- D3 loaded as a global so both results.js and the module graph can access it -->
     <script src="https://d3js.org/d3.v7.min.js"></script>
-    <style>
-      :root {
-        font-family: "Inter", "Segoe UI", system-ui, sans-serif;
-        --bg: #f7f9fc;
-        --card: #ffffff;
-        --text: #1f2a44;
-        --muted: #5f6b7a;
-        --accent: #2f6fed;
-        --grid-line: #dfe5ef;
-        --standard: #2f6fed;
-        --bubble: #f59e0b;
-      }
-
-      * { box-sizing: border-box; margin: 0; padding: 0; }
-
-      body {
-        background: var(--bg);
-        color: var(--text);
-        padding: 40px 24px 60px;
-      }
-
-      header {
-        max-width: 1000px;
-        margin: 0 auto 36px;
-      }
-
-      header h1 {
-        font-size: 1.7rem;
-        font-weight: 700;
-        margin-bottom: 6px;
-      }
-
-      header p {
-        color: var(--muted);
-        font-size: 0.95rem;
-      }
-
-      .charts-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 24px;
-        max-width: 1000px;
-        margin: 0 auto;
-      }
-
-      .chart-card {
-        background: var(--card);
-        border-radius: 14px;
-        box-shadow: 0 4px 20px rgba(15, 23, 42, 0.06);
-        padding: 24px 20px 18px;
-      }
-
-      .chart-card h2 {
-        font-size: 0.95rem;
-        font-weight: 600;
-        text-align: center;
-        margin-bottom: 16px;
-        color: var(--text);
-      }
-
-      .chart-card svg {
-        display: block;
-        width: 100%;
-        height: auto;
-        overflow: visible;
-      }
-
-      .legend {
-        display: flex;
-        justify-content: center;
-        gap: 20px;
-        margin-top: 12px;
-      }
-
-      .legend-item {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        font-size: 0.8rem;
-        color: var(--muted);
-      }
-
-      .legend-swatch {
-        width: 12px;
-        height: 12px;
-        border-radius: 3px;
-        flex-shrink: 0;
-      }
-
-      #status {
-        text-align: center;
-        color: var(--muted);
-        margin-top: 32px;
-        font-size: 0.88rem;
-      }
-
-      #status.error {
-        color: #dc2626;
-      }
-    </style>
+    <link rel="stylesheet" href="results.css" />
   </head>
   <body>
     <header>
       <h1>Study Results</h1>
-      <p>Ease ratings (1 = very difficult, 5 = very easy) per task type, comparing Standard Scatter vs Bubble Chart conditions.</p>
+      <p>
+        Ease ratings (1 = very difficult, 5 = very easy) per task type,
+        comparing Standard Scatter vs Bubble Chart conditions.
+      </p>
     </header>
 
+    <!-- ── Boxplot section ─────────────────────────────────────────────── -->
     <div class="charts-grid">
       <div class="chart-card">
         <h2>Pattern Recognition Ease</h2>
         <svg id="chart-pattern"></svg>
         <div class="legend">
           <span class="legend-item">
-            <span class="legend-swatch" style="background: var(--standard)"></span>Standard Scatter
+            <span class="legend-swatch" style="background:#2f6fed"></span>Standard Scatter
           </span>
           <span class="legend-item">
-            <span class="legend-swatch" style="background: var(--bubble)"></span>Bubble Chart
+            <span class="legend-swatch" style="background:#f59e0b"></span>Bubble Chart
           </span>
         </div>
       </div>
@@ -131,10 +37,10 @@
         <svg id="chart-outlier"></svg>
         <div class="legend">
           <span class="legend-item">
-            <span class="legend-swatch" style="background: var(--standard)"></span>Standard Scatter
+            <span class="legend-swatch" style="background:#2f6fed"></span>Standard Scatter
           </span>
           <span class="legend-item">
-            <span class="legend-swatch" style="background: var(--bubble)"></span>Bubble Chart
+            <span class="legend-swatch" style="background:#f59e0b"></span>Bubble Chart
           </span>
         </div>
       </div>
@@ -144,10 +50,10 @@
         <svg id="chart-population"></svg>
         <div class="legend">
           <span class="legend-item">
-            <span class="legend-swatch" style="background: var(--standard)"></span>Standard Scatter
+            <span class="legend-swatch" style="background:#2f6fed"></span>Standard Scatter
           </span>
           <span class="legend-item">
-            <span class="legend-swatch" style="background: var(--bubble)"></span>Bubble Chart
+            <span class="legend-swatch" style="background:#f59e0b"></span>Bubble Chart
           </span>
         </div>
       </div>
@@ -155,221 +61,10 @@
 
     <p id="status">Loading results…</p>
 
-    <script>
-      // Compute box plot statistics from a numeric array
-      function boxStats(arr) {
-        if (!arr || arr.length === 0) return null;
-        const sorted = [...arr].filter(v => Number.isFinite(v)).sort((a, b) => a - b);
-        if (sorted.length === 0) return null;
-        const q1 = d3.quantile(sorted, 0.25);
-        const median = d3.quantile(sorted, 0.5);
-        const q3 = d3.quantile(sorted, 0.75);
-        const iqr = q3 - q1;
-        const lowerFence = q1 - 1.5 * iqr;
-        const upperFence = q3 + 1.5 * iqr;
-        const whiskerLow  = d3.min(sorted.filter(v => v >= lowerFence));
-        const whiskerHigh = d3.max(sorted.filter(v => v <= upperFence));
-        const outlierPts  = sorted.filter(v => v < lowerFence || v > upperFence);
-        return { q1, median, q3, whiskerLow, whiskerHigh, outlierPts, values: sorted };
-      }
+    <!-- ── Statistical Analysis section (populated by results.js) ─────── -->
+    <section id="stats-section" class="stats-section"></section>
 
-      // Draw a box plot with two groups (Standard / Bubble) into the given SVG element
-      function drawBoxPlot(svgEl, groups) {
-        const VB_W = 300;
-        const VB_H = 240;
-        const margin = { top: 16, right: 16, bottom: 32, left: 36 };
-        const innerW = VB_W - margin.left - margin.right;
-        const innerH = VB_H - margin.top - margin.bottom;
-
-        const svg = d3.select(svgEl)
-          .attr("viewBox", `0 0 ${VB_W} ${VB_H}`);
-
-        svg.selectAll("*").remove();
-
-        const g = svg.append("g")
-          .attr("transform", `translate(${margin.left},${margin.top})`);
-
-        // Scales
-        const x = d3.scaleBand()
-          .domain(groups.map(d => d.label))
-          .range([0, innerW])
-          .padding(0.45);
-
-        const y = d3.scaleLinear()
-          .domain([0.5, 5.5])
-          .range([innerH, 0]);
-
-        // Horizontal grid lines
-        g.append("g")
-          .call(
-            d3.axisLeft(y)
-              .ticks(5)
-              .tickSize(-innerW)
-              .tickFormat("")
-          )
-          .call(sel => sel.select(".domain").remove())
-          .call(sel => sel.selectAll(".tick line")
-            .attr("stroke", "#dfe5ef")
-            .attr("stroke-dasharray", "4,3")
-          );
-
-        // Y axis
-        g.append("g")
-          .call(
-            d3.axisLeft(y)
-              .ticks(5)
-              .tickFormat(d => d)
-          )
-          .call(sel => sel.select(".domain").remove())
-          .call(sel => sel.selectAll("text")
-            .attr("fill", "#5f6b7a")
-            .attr("font-size", "10px")
-          )
-          .call(sel => sel.selectAll(".tick line").attr("stroke", "#dfe5ef"));
-
-        // X axis
-        g.append("g")
-          .attr("transform", `translate(0,${innerH})`)
-          .call(d3.axisBottom(x).tickSize(0))
-          .call(sel => sel.select(".domain").attr("stroke", "#dfe5ef"))
-          .call(sel => sel.selectAll("text")
-            .attr("fill", "#5f6b7a")
-            .attr("font-size", "11px")
-            .attr("dy", "1.4em")
-          );
-
-        // Draw each group
-        groups.forEach(({ label, color, stats }, gi) => {
-          if (!stats) {
-            // No data placeholder
-            g.append("text")
-              .attr("x", x(label) + x.bandwidth() / 2)
-              .attr("y", innerH / 2)
-              .attr("text-anchor", "middle")
-              .attr("fill", "#c0c8d4")
-              .attr("font-size", "10px")
-              .text("no data");
-            return;
-          }
-
-          const cx = x(label) + x.bandwidth() / 2;
-          const bw = x.bandwidth();
-          const capHalf = bw * 0.28;
-
-          // Upper whisker
-          g.append("line")
-            .attr("x1", cx).attr("x2", cx)
-            .attr("y1", y(stats.whiskerHigh)).attr("y2", y(stats.q3))
-            .attr("stroke", color).attr("stroke-width", 1.5);
-
-          // Lower whisker
-          g.append("line")
-            .attr("x1", cx).attr("x2", cx)
-            .attr("y1", y(stats.q1)).attr("y2", y(stats.whiskerLow))
-            .attr("stroke", color).attr("stroke-width", 1.5);
-
-          // Upper cap
-          g.append("line")
-            .attr("x1", cx - capHalf).attr("x2", cx + capHalf)
-            .attr("y1", y(stats.whiskerHigh)).attr("y2", y(stats.whiskerHigh))
-            .attr("stroke", color).attr("stroke-width", 1.5);
-
-          // Lower cap
-          g.append("line")
-            .attr("x1", cx - capHalf).attr("x2", cx + capHalf)
-            .attr("y1", y(stats.whiskerLow)).attr("y2", y(stats.whiskerLow))
-            .attr("stroke", color).attr("stroke-width", 1.5);
-
-          // IQR box
-          g.append("rect")
-            .attr("x", x(label))
-            .attr("y", y(stats.q3))
-            .attr("width", bw)
-            .attr("height", y(stats.q1) - y(stats.q3))
-            .attr("fill", color)
-            .attr("fill-opacity", 0.18)
-            .attr("stroke", color)
-            .attr("stroke-width", 1.8)
-            .attr("rx", 3);
-
-          // Median line
-          g.append("line")
-            .attr("x1", x(label)).attr("x2", x(label) + bw)
-            .attr("y1", y(stats.median)).attr("y2", y(stats.median))
-            .attr("stroke", color).attr("stroke-width", 2.5);
-
-          // Jittered individual data points
-          stats.values.forEach((v, i) => {
-            // Deterministic pseudo-jitter using sine
-            const jitter = Math.sin(i * 7.3 + gi * 3.1) * bw * 0.2;
-            g.append("circle")
-              .attr("cx", cx + jitter)
-              .attr("cy", y(v))
-              .attr("r", 2.8)
-              .attr("fill", color)
-              .attr("fill-opacity", 0.45);
-          });
-
-          // Outlier points (hollow circles)
-          stats.outlierPts.forEach(v => {
-            g.append("circle")
-              .attr("cx", cx)
-              .attr("cy", y(v))
-              .attr("r", 3.5)
-              .attr("fill", "none")
-              .attr("stroke", color)
-              .attr("stroke-width", 1.5);
-          });
-        });
-      }
-
-      // Fetch summaries and render
-      async function init() {
-        const status = document.getElementById("status");
-        try {
-          const res = await fetch("/api/responses-summary");
-          if (!res.ok) throw new Error(`Server responded with HTTP ${res.status}`);
-          const data = await res.json();
-
-          const n = (data.patternEaseStandard || []).length;
-          status.textContent = `${n} response${n !== 1 ? "s" : ""} recorded.`;
-
-          const CHARTS = [
-            {
-              svgId: "chart-pattern",
-              groups: [
-                { label: "Standard", color: "#2f6fed", stats: boxStats(data.patternEaseStandard) },
-                { label: "Bubble",   color: "#f59e0b", stats: boxStats(data.patternEaseBubble)   }
-              ]
-            },
-            {
-              svgId: "chart-outlier",
-              groups: [
-                { label: "Standard", color: "#2f6fed", stats: boxStats(data.outlierEaseStandard) },
-                { label: "Bubble",   color: "#f59e0b", stats: boxStats(data.outlierEaseBubble)   }
-              ]
-            },
-            {
-              svgId: "chart-population",
-              groups: [
-                { label: "Standard", color: "#2f6fed", stats: boxStats(data.populationEaseStandard) },
-                { label: "Bubble",   color: "#f59e0b", stats: boxStats(data.populationEaseBubble)   }
-              ]
-            }
-          ];
-
-          CHARTS.forEach(({ svgId, groups }) => {
-            drawBoxPlot(document.getElementById(svgId), groups);
-          });
-
-        } catch (err) {
-          status.textContent = `Could not load results: ${err.message}`;
-          status.classList.add("error");
-          console.error(err);
-        }
-      }
-
-      init();
-    </script>
+    <!-- ES module: deferred by default, imports from ./stats/*.js -->
+    <script type="module" src="results.js" defer></script>
   </body>
 </html>
